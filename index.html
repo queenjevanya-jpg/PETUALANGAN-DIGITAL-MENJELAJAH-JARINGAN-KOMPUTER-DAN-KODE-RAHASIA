@@ -1618,36 +1618,36 @@
           </div>
         `;
       } else {
-        // Tantangan Berpikir Kritis Zona 1
+        // Tantangan Berpikir Kritis Zona 1 (Soal Baru)
         const answered = state.zone1.challengeAnswered;
         content = `
           ${renderNetoBox(
-            "Saatnya mengasah <strong>Penalaran Kritis</strong>! Bacalah studi kasus di laboratorium sekolah berikut dan pilih solusi terbaiknya.",
+            "Saatnya mengasah <strong>Penalaran Kritis</strong>! Bacalah situasi nyata di perpustakaan digital sekolah berikut dan pilih solusi jaringan yang paling tepat.",
             'thinking'
           )}
 
           <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-purple-300 shadow-lg max-w-3xl mx-auto">
             <div class="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 mb-5">
-              <span class="text-xs font-extrabold uppercase text-amber-700">Studi Kasus Laboratorium</span>
+              <span class="text-xs font-extrabold uppercase text-amber-700">Studi Kasus Perpustakaan Sekolah</span>
               <p class="text-base sm:text-lg font-bold text-slate-800 mt-1">
-                "Di laboratorium sekolah terdapat 10 komputer. Guru ingin semua komputer dapat mengakses internet dan menggunakan satu printer secara bersama-sama."
+                "Perpustakaan SD Harapan memiliki 6 komputer pencarian katalog buku dan 1 komputer server petugas. Petugas ingin agar setiap kali ada buku baru yang dicatat di server, daftar buku di ke-6 komputer siswa langsung ikut terbarui secara otomatis."
               </p>
             </div>
 
-            <p class="font-extrabold text-slate-800 mb-3">Pertanyaan: Menurutmu, apa manfaat utama menghubungkan ke-10 komputer tersebut dalam sebuah jaringan?</p>
+            <p class="font-extrabold text-slate-800 mb-3">Pertanyaan: Mengapa menghubungkan seluruh komputer perpustakaan dalam sebuah jaringan adalah solusi terbaik?</p>
 
             <div class="space-y-3">
               ${[
                 {
-                  text: 'Menghemat biaya dan memudahkan pekerjaan karena 10 komputer dapat berbagi satu printer serta mengakses internet bersama-sama.',
+                  text: 'Karena data katalog buku dapat dibagikan secara terpusat dari server ke semua komputer siswa secara cepat dan selalu seragam.',
                   correct: true
                 },
                 {
-                  text: 'Agar sekolah harus membeli 10 printer baru untuk masing-masing meja komputer.',
+                  text: 'Karena petugas harus menyalin data menggunakan flashdisk satu per satu ke enam komputer setiap menit.',
                   correct: false
                 },
                 {
-                  text: 'Supaya komputer tidak memerlukan aliran listrik saat digunakan siswa.',
+                  text: 'Karena jaringan komputer dapat mencetak buku cerita baru secara otomatis tanpa kertas.',
                   correct: false
                 }
               ].map((opt, idx) => `
@@ -1665,7 +1665,7 @@
             ${answered ? `
               <div class="mt-6 p-5 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-emerald-900 animate-pop">
                 <p class="font-extrabold text-base">✅ Analisis Tepat Sekali!</p>
-                <p class="text-sm mt-1">Dengan jaringan komputer, sekolah tidak perlu membeli 10 printer terpisah. Satu printer dan satu sumber internet dapat digunakan bersama (<em>resource sharing</em>).</p>
+                <p class="text-sm mt-1">Berbagi data terpusat melalui jaringan membuat pembaruan informasi menjadi sangat cepat, hemat waktu, dan seragam di seluruh perangkat yang terhubung.</p>
                 <div class="mt-4 flex flex-wrap gap-3">
                   <button onclick="navigateTo('map')" class="btn-game px-6 py-3 rounded-2xl bg-blue-600 text-white font-display font-bold">
                     🗺️ Kembali ke Peta & Buka Zona 2!
@@ -1687,14 +1687,14 @@
       `;
     }
 
-    // Interaksi Simulasi & Game Zona 1
+    // Fungsi Interaktif Zona 1
     function sim1ToggleDevice(id) {
       AudioEngine.playClick();
-      const list = state.zone1.connectedDevices || [];
-      const idx = list.indexOf(id);
-      if (idx > -1) list.splice(idx, 1);
-      else list.push(id);
-      state.zone1.connectedDevices = list;
+      const arr = state.zone1.connectedDevices || [];
+      const idx = arr.indexOf(id);
+      if (idx > -1) arr.splice(idx, 1);
+      else arr.push(id);
+      state.zone1.connectedDevices = arr;
       saveState();
       renderApp();
     }
@@ -1704,91 +1704,102 @@
       state.zone1.connectedDevices = ['pc1', 'pc2', 'pc3', 'laptop', 'phone', 'printer'];
       saveState();
       renderApp();
-      const box = document.getElementById('sim1-status-box');
-      if (box) {
-        box.innerHTML = '✅ <strong>NETO:</strong> Semua perangkat sudah terhubung ke Router/Switch! Sekarang perangkat dapat saling bertukar data.';
-      }
-    }
-
-    function animateSvgPacket(x1, y1, x2, y2, labelText, doneMsg) {
-      const pkt = document.getElementById('sim1-packet');
-      const pktTxt = document.getElementById('sim1-packet-text');
-      const box = document.getElementById('sim1-status-box');
-      if (!pkt || !pktTxt) return;
-
-      pktTxt.textContent = labelText;
-      pkt.style.display = 'block';
-
-      let progress = 0;
-      const timer = setInterval(() => {
-        progress += 0.04;
-        if (progress <= 0.5) {
-          // Menuju router pusat (350, 175)
-          const t = progress * 2;
-          const cx = x1 + (350 - x1) * t;
-          const cy = y1 + (175 - y1) * t;
-          pkt.setAttribute('transform', `translate(${cx}, ${cy})`);
-        } else if (progress <= 1) {
-          // Dari router pusat menuju tujuan
-          const t = (progress - 0.5) * 2;
-          const cx = 350 + (x2 - 350) * t;
-          const cy = 175 + (y2 - 175) * t;
-          pkt.setAttribute('transform', `translate(${cx}, ${cy})`);
-        } else {
-          clearInterval(timer);
-          pkt.style.display = 'none';
-          AudioEngine.playCorrect();
-          if (box) box.innerHTML = doneMsg;
+      setTimeout(() => {
+        const box = document.getElementById('sim1-status-box');
+        if (box) {
+          box.innerHTML = '🟢 <strong>Semua perangkat terhubung!</strong> NETO: "Mantap! Sekarang ke-6 perangkat berada dalam satu jaringan lokal dan siap bertukar data."';
         }
-      }, 30);
+      }, 50);
     }
 
     function sim1TriggerSendFile() {
       const conn = state.zone1.connectedDevices || [];
+      const box = document.getElementById('sim1-status-box');
       if (!conn.includes('pc1') || !conn.includes('laptop')) {
         AudioEngine.playWrong();
-        showToast('⚠️', 'Perangkat Belum Terhubung', 'Hubungkan Komputer 1 dan Laptop terlebih dahulu!');
+        if (box) box.innerHTML = '⚠️ <strong>Gagal mengirim!</strong> Pastikan <em>Komputer 1</em> dan <em>Laptop</em> sudah terhubung ke Router/Switch.';
         return;
       }
+
       AudioEngine.playClick();
-      const box = document.getElementById('sim1-status-box');
-      if (box) box.innerHTML = '⏳ Mengirim file <strong>Tugas_Informatika.pdf</strong> dari Komputer 1 ke Laptop...';
-      animateSvgPacket(
-        100, 65, 585, 75,
-        '📄 Tugas.pdf',
-        '🎉 <strong>File berhasil dikirim!</strong> Jaringan komputer memungkinkan pertukaran data dengan cepat.'
-      );
+      const pkt = document.getElementById('sim1-packet');
+      const pktTxt = document.getElementById('sim1-packet-text');
+      if (!pkt) return;
+      pktTxt.textContent = '📄 Tugas_IPA.pdf';
+      pkt.style.display = 'block';
+
+      const waypoints = [
+        { x: 100, y: 65 },
+        { x: 350, y: 175 },
+        { x: 585, y: 75 }
+      ];
+      let step = 0;
+      const timer = setInterval(() => {
+        if (step >= waypoints.length) {
+          clearInterval(timer);
+          pkt.style.display = 'none';
+          AudioEngine.playCorrect();
+          if (box) {
+            box.innerHTML = '✅ <strong>File berhasil dikirim!</strong> File <em>Tugas_IPA.pdf</em> terkirim dari Komputer 1 ke Laptop melalui jaringan.';
+          }
+          return;
+        }
+        pkt.setAttribute('transform', `translate(${waypoints[step].x}, ${waypoints[step].y})`);
+        step++;
+      }, 360);
     }
 
     function sim1TriggerPrint() {
       const conn = state.zone1.connectedDevices || [];
+      const box = document.getElementById('sim1-status-box');
       if (!conn.includes('pc2') || !conn.includes('printer')) {
         AudioEngine.playWrong();
-        showToast('⚠️', 'Perangkat Belum Terhubung', 'Hubungkan Komputer 2 dan Printer terlebih dahulu!');
+        if (box) box.innerHTML = '⚠️ <strong>Printer tidak terjangkau!</strong> Hubungkan <em>Komputer 2</em> dan <em>Printer</em> terlebih dahulu.';
         return;
       }
+
       AudioEngine.playClick();
-      const box = document.getElementById('sim1-status-box');
-      if (box) box.innerHTML = '🖨️ Komputer 2 mengirim perintah cetak ke Printer...';
-      animateSvgPacket(
-        260, 50, 555, 260,
-        '🖨️ Cetak Doc',
-        '🖨️✨ <strong>Dokumen sedang dicetak!</strong> NETO: Inilah manfaat berbagi sumber daya (printer) bersama-sama.'
-      );
+      const pkt = document.getElementById('sim1-packet');
+      const pktTxt = document.getElementById('sim1-packet-text');
+      if (!pkt) return;
+      pktTxt.textContent = '🖨️ Cetak Poster';
+      pkt.style.display = 'block';
+
+      const waypoints = [
+        { x: 260, y: 50 },
+        { x: 350, y: 175 },
+        { x: 555, y: 260 }
+      ];
+      let step = 0;
+      const timer = setInterval(() => {
+        if (step >= waypoints.length) {
+          clearInterval(timer);
+          pkt.style.display = 'none';
+          AudioEngine.playCorrect();
+          if (box) {
+            box.innerHTML = '🖨️ <strong>Berbagi Printer Berhasil!</strong> Satu printer dapat dipakai bersama-sama oleh banyak komputer di jaringan.';
+          }
+          return;
+        }
+        pkt.setAttribute('transform', `translate(${waypoints[step].x}, ${waypoints[step].y})`);
+        step++;
+      }, 360);
     }
 
     function game1ConnectNode(id) {
-      const list = state.zone1.gameConnected || [];
-      if (!list.includes(id)) {
-        list.push(id);
-        state.zone1.gameConnected = list;
-        AudioEngine.playClick();
-        if (list.length === 4) {
-          completeZoneStep(1, 'game', 60, 2, 'Jaringan Terbangun!', 'Kamu berhasil menghubungkan seluruh perangkat laboratorium!');
-        } else {
-          saveState();
-          renderApp();
+      const arr = state.zone1.gameConnected || [];
+      if (!arr.includes(id)) {
+        AudioEngine.playCorrect();
+        arr.push(id);
+        state.zone1.gameConnected = arr;
+        if (arr.length === 4) {
+          completeZoneStep(1, 'game', 60, 2, 'Arsitek Jaringan Hebat!', 'Keempat perangkat berhasil terhubung ke Switch!');
+          return;
         }
+        saveState();
+        renderApp();
+      } else {
+        AudioEngine.playClick();
       }
     }
 
@@ -1799,38 +1810,38 @@
         AudioEngine.playMissionComplete();
       } else {
         AudioEngine.playWrong();
-        showToast('🤔', 'Coba Pikirkan Lagi', 'Petunjuk NETO: Dengan jaringan, satu printer bisa dipakai bersama oleh 10 komputer!');
+        showToast('🤔', 'Coba Pikirkan Lagi', 'Petunjuk NETO: Dengan jaringan, satu server bisa membagikan data katalog terbaru ke semua komputer sekaligus!');
       }
     }
 
     // =========================================================================
-    // 8. ZONA 2: JENIS-JENIS JARINGAN (LAN, MAN, WAN)
+    // 8. ZONA 2: JENIS-JENIS JARINGAN (LAN, MAN, WAN) - SOAL BARU
     // =========================================================================
     const ZONE2_QUIZ_ITEMS = [
       {
-        desc: 'Komputer-komputer di dalam laboratorium sekolah saling terhubung untuk berbagi file tugas.',
+        desc: 'Komputer kasir, mesin pemindai harga, dan komputer gudang di dalam satu toko swalayan saling terhubung.',
         ans: 'LAN',
-        explain: 'Benar! Laboratorium sekolah merupakan satu area gedung kecil sehingga termasuk jaringan LAN (Local Area Network).'
+        explain: 'Benar! Seluruh perangkat berada di dalam satu gedung toko sehingga termasuk jaringan LAN (Local Area Network).'
       },
       {
-        desc: 'Jaringan yang menghubungkan beberapa gedung kantor dan sekolah dalam satu wilayah Kota Bandung.',
+        desc: 'Pemerintah Kota Medan menghubungkan jaringan kamera lalu lintas (CCTV) dari seluruh persimpangan jalan di dalam kota ke pusat kontrol kota.',
         ans: 'MAN',
-        explain: 'Tepat! Cakupan satu wilayah kota atau metropolitan termasuk jaringan MAN (Metropolitan Area Network).'
+        explain: 'Tepat! Jaringan yang mencakup berbagai titik di dalam satu wilayah kota termasuk MAN (Metropolitan Area Network).'
       },
       {
-        desc: 'Jaringan internet yang menghubungkan komputer di Indonesia dengan server di Jepang dan Amerika.',
+        desc: 'Murid di Indonesia melakukan panggilan video (video call) langsung dengan siswa sekolah sahabat di Korea Selatan.',
         ans: 'WAN',
-        explain: 'Hebat! Jaringan lintas negara dan benua memiliki cakupan sangat luas sehingga disebut WAN (Wide Area Network).'
+        explain: 'Hebat! Komunikasi lintas negara dan benua menggunakan jaringan berskala sangat luas yaitu WAN (Wide Area Network).'
       },
       {
-        desc: 'Laptop ayah, tablet ibu, dan smartphone kakak terhubung ke satu Wi-Fi di dalam rumah.',
+        desc: 'Empat laptop kelompok belajar terhubung ke satu hotspot Wi-Fi portabel di dalam ruang kelas VI.',
         ans: 'LAN',
-        explain: 'Benar! Lingkungan rumah adalah area kecil/lokal yang menggunakan jaringan LAN.'
+        explain: 'Benar! Jangkauan di dalam satu ruang kelas adalah area kecil/lokal sehingga tergolong LAN.'
       },
       {
-        desc: 'Sistem jaringan perbankan yang menghubungkan seluruh kantor cabang bank di dalam satu kota besar.',
-        ans: 'MAN',
-        explain: 'Tepat! Koneksi antargedung di dalam satu kota termasuk jaringan MAN.'
+        desc: 'Jaringan komunikasi perbankan yang menghubungkan kantor pusat di Jakarta dengan kantor cabang di Singapura dan Australia.',
+        ans: 'WAN',
+        explain: 'Tepat! Koneksi antarnegara melintasi samudra dan benua merupakan ciri khas jaringan WAN.'
       }
     ];
 
@@ -1995,7 +2006,6 @@
           )}
 
           <div class="bg-white rounded-3xl p-5 sm:p-7 border-4 border-purple-300 shadow-lg">
-            <!-- Tombol Pilih Skala -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
               ${[
                 { id: 'rumah', label: '🏠 Jaringan Rumah' },
@@ -2012,14 +2022,12 @@
               `).join('')}
             </div>
 
-            <!-- Area Visual Peta -->
             <div class="bg-slate-900 rounded-3xl p-4 border-4 border-slate-700">
               <svg viewBox="0 0 700 295" class="w-full h-auto max-h-[320px]">
                 ${cur.svg}
               </svg>
             </div>
 
-            <!-- Indikator Cakupan -->
             <div class="mt-4 p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <span class="inline-block px-3 py-1 rounded-full ${cur.badgeColor} text-white text-xs font-extrabold mb-1">
@@ -2084,13 +2092,13 @@
           </div>
         `;
       } else {
-        // Tantangan "Pilih Jaringan yang Tepat"
+        // Tantangan "Pilih Jaringan yang Tepat" (Studi Kasus Baru)
         const c1 = state.zone2.challenge1Done;
         const c2 = state.zone2.challenge2Done;
 
         content = `
           ${renderNetoBox(
-            "Selesaikan dua misi pemilihan jaringan untuk <strong>SD Nusantara</strong> berikut ini!",
+            "Selesaikan dua misi pemilihan jaringan untuk <strong>Klinik Kesehatan & Dinas Kota</strong> berikut ini!",
             (c1 && c2) ? 'celebrate' : 'thinking'
           )}
 
@@ -2099,7 +2107,7 @@
             <div class="bg-white rounded-3xl p-6 border-4 ${c1 ? 'border-emerald-400' : 'border-blue-200'} shadow-md">
               <span class="text-xs font-extrabold uppercase text-blue-600">Misi 1</span>
               <p class="font-bold text-slate-800 text-base sm:text-lg mt-1 mb-4">
-                "SD Nusantara memiliki laboratorium komputer. Semua komputer di ruangan tersebut ingin terhubung agar dapat berbagi data dan menggunakan printer."
+                "Klinik Sehat Pratama memiliki ruang pendaftaran, ruang pemeriksaan dokter, dan ruang apotek di satu bangunan yang sama. Semua komputer di ruangan itu ingin berbagi data rekam medis pasien."
               </p>
               <div class="flex flex-wrap gap-3">
                 ${['LAN', 'MAN', 'WAN'].map(opt => `
@@ -2111,14 +2119,14 @@
                   </button>
                 `).join('')}
               </div>
-              ${c1 ? `<p class="mt-3 text-sm text-emerald-800 font-semibold bg-emerald-50 p-3 rounded-xl">✅ Benar! Karena seluruh komputer berada di dalam satu laboratorium sekolah, jaringan yang tepat adalah <strong>LAN</strong>.</p>` : ''}
+              ${c1 ? `<p class="mt-3 text-sm text-emerald-800 font-semibold bg-emerald-50 p-3 rounded-xl">✅ Benar! Seluruh komputer berada di dalam satu gedung klinik sehingga jaringan yang tepat adalah <strong>LAN</strong>.</p>` : ''}
             </div>
 
             <!-- Tantangan 2 -->
             <div class="bg-white rounded-3xl p-6 border-4 ${c2 ? 'border-emerald-400' : 'border-purple-200'} shadow-md">
               <span class="text-xs font-extrabold uppercase text-purple-600">Misi 2</span>
               <p class="font-bold text-slate-800 text-base sm:text-lg mt-1 mb-4">
-                "Beberapa sekolah dasar di satu kota yang sama ingin saling terhubung untuk berbagi bank soal ujian kota."
+                "Dinas Kesehatan Kota ingin menghubungkan sistem informasi dari 25 Puskesmas yang tersebar di seluruh kecamatan dalam satu kota yang sama."
               </p>
               <div class="flex flex-wrap gap-3">
                 ${['LAN', 'MAN', 'WAN'].map(opt => `
@@ -2130,7 +2138,7 @@
                   </button>
                 `).join('')}
               </div>
-              ${c2 ? `<p class="mt-3 text-sm text-emerald-800 font-semibold bg-emerald-50 p-3 rounded-xl">✅ Tepat sekali! Menghubungkan beberapa gedung sekolah di dalam satu kota menggunakan jaringan <strong>MAN</strong>.</p>` : ''}
+              ${c2 ? `<p class="mt-3 text-sm text-emerald-800 font-semibold bg-emerald-50 p-3 rounded-xl">✅ Tepat sekali! Menghubungkan puluhan lokasi di dalam satu wilayah kota menggunakan jaringan <strong>MAN</strong>.</p>` : ''}
             </div>
 
             ${(c1 && c2) ? `
@@ -2208,7 +2216,7 @@
           state.zone2.challenge1Done = true;
         } else {
           AudioEngine.playWrong();
-          showToast('🤔', 'Petunjuk NETO', 'Ruang laboratorium sekolah adalah satu ruangan/gedung kecil. Coba pilih LAN!');
+          showToast('🤔', 'Petunjuk NETO', 'Gedung klinik adalah satu bangunan lokal kecil. Coba pilih LAN!');
         }
       } else if (num === 2) {
         if (choice === 'MAN') {
@@ -2216,7 +2224,7 @@
           state.zone2.challenge2Done = true;
         } else {
           AudioEngine.playWrong();
-          showToast('🤔', 'Petunjuk NETO', 'Beberapa sekolah di dalam satu kota mencakup area metropolitan (MAN).');
+          showToast('🤔', 'Petunjuk NETO', '25 Puskesmas yang tersebar di dalam satu kota mencakup area metropolitan (MAN).');
         }
       }
 
@@ -2230,25 +2238,67 @@
     }
 
     // =========================================================================
-    // 9. ZONA 3: KODE RAHASIA & KEAMANAN INFORMASI (CAESAR CIPHER +1)
+    // 9. ZONA 3: KODE RAHASIA & KEAMANAN INFORMASI (MULTI-RUMUS MENANTANG)
     // =========================================================================
     function caesarShift(text, shift) {
-      return text.toUpperCase().split('').map(ch => {
+      return text.split('').map(ch => {
         const code = ch.charCodeAt(0);
         if (code >= 65 && code <= 90) {
-          const offset = ((code - 65 + shift) % 26 + 26) % 26;
-          return String.fromCharCode(65 + offset);
+          return String.fromCharCode(((code - 65 + (shift % 26) + 26) % 26) + 65);
         }
-        return ch; // pertahankan spasi & tanda baca
+        if (code >= 97 && code <= 122) {
+          return String.fromCharCode(((code - 97 + (shift % 26) + 26) % 26) + 97);
+        }
+        return ch;
       }).join('');
     }
 
     const CIPHER_LEVELS = [
-      { level: 1, code: 'IBMP', answer: 'HALO', hint: 'Kata sapaan ramah terdiri dari 4 huruf. Geser setiap huruf 1 langkah mundur (I→H, B→A...).' },
-      { level: 2, code: 'TFKPMBI', answer: 'SEKOLAH', hint: 'Tempat kita belajar bersama guru dan teman-teman (7 huruf).' },
-      { level: 3, code: 'JOGPSNBUJLB', answer: 'INFORMATIKA', hint: 'Nama mata pelajaran yang sedang kita pelajari hari ini!' },
-      { level: 4, code: 'LPNQVUFS', answer: 'KOMPUTER', hint: 'Perangkat elektronik utama untuk mengolah data di laboratorium.' },
-      { level: 5, code: 'KBSJOH', answer: 'JARING', hint: 'Kata dasar dari "jaringan" (6 huruf: K→J, B→A, S→R...).' }
+      {
+        level: 1,
+        ruleBadge: 'RUMUS 1: GESER +2 HURUF MAJU',
+        ruleDesc: 'Setiap huruf asli digeser 2 langkah maju (A→C, B→D, ..., Y→A, Z→B). Untuk membaca pesannya, geser 2 langkah MUNDUR!',
+        code: 'NKPFWPI',
+        answer: 'LINDUNG',
+        hint: 'Geser mundur 2 huruf: N→L, K→I, P→N, F→D, W→U, P→N, I→G.',
+        explain: 'N(-2)=L, K(-2)=I, P(-2)=N, F(-2)=D, W(-2)=U, P(-2)=N, I(-2)=G → LINDUNG!'
+      },
+      {
+        level: 2,
+        ruleBadge: 'RUMUS 2: SANDI CERMIN (DIBALIK)',
+        ruleDesc: 'Huruf-huruf pada kata asli ditulis terbalik dari belakang ke depan (contoh: KODE → EDOK).',
+        code: 'ISAVIRP',
+        answer: 'PRIVASI',
+        hint: 'Baca susunan huruf dari kanan ke kiri (ujung belakang ke depan)!',
+        explain: 'Jika ISAVIRP dibaca terbalik dari kanan ke kiri, terbentuk kata PRIVASI!'
+      },
+      {
+        level: 3,
+        ruleBadge: 'RUMUS 3: GESER -2 HURUF MUNDUR',
+        ruleDesc: 'Pesan rahasia dibuat dengan menggeser 2 huruf MUNDUR (C→A, D→B). Untuk membacanya, geser 2 huruf MAJU!',
+        code: 'QCPTCP',
+        answer: 'SERVER',
+        hint: 'Geser 2 huruf MAJU dari kode: Q(+2)=S, C(+2)=E, P(+2)=R...',
+        explain: 'Q(+2)=S, C(+2)=E, P(+2)=R, T(+2)=V, C(+2)=E, P(+2)=R → SERVER!'
+      },
+      {
+        level: 4,
+        ruleBadge: 'RUMUS 4: GESER +3 HURUF MAJU',
+        ruleDesc: 'Setiap huruf asli digeser 3 langkah maju (A→D, B→E, C→F). Untuk membacanya, geser 3 langkah MUNDUR!',
+        code: 'MDULQJ',
+        answer: 'JARING',
+        hint: 'Geser mundur 3 huruf: M(-3)=J, D(-3)=A, U(-3)=R, L(-3)=I, Q(-3)=N, J(-3)=G.',
+        explain: 'M(-3)=J, D(-3)=A, U(-3)=R, L(-3)=I, Q(-3)=N, J(-3)=G → JARING!'
+      },
+      {
+        level: 5,
+        ruleBadge: 'RUMUS 5: KODE ANGKA ALFABET (A=1 ... Z=26)',
+        ruleDesc: 'Setiap angka mewakili nomor urut huruf dalam alfabet: A=1, B=2, C=3, D=4, E=5, ..., I=9, N=14, S=19, Z=26.',
+        code: '19-1-14-4-9',
+        answer: 'SANDI',
+        hint: 'Huruf ke-19 = S, ke-1 = A, ke-14 = N, ke-4 = D, ke-9 = I.',
+        explain: '19=S, 1=A, 14=N, 4=D, 9=I → SANDI!'
+      }
     ];
 
     function renderZone3() {
@@ -2258,63 +2308,61 @@
       if (tab === 'materi') {
         content = `
           ${renderNetoBox(
-            "Selamat datang di <strong>Zona 3: Kode Rahasia</strong>! Ketika data dikirim melalui jaringan, pesan penting perlu disandikan agar tidak dibaca sembarang orang.",
+            "Selamat datang di <strong>Zona 3: Kode Rahasia</strong>! Saat data dikirim melewati jaringan internet, pesan perlu dilindungi agar tidak mudah dibaca oleh pihak yang tidak berhak.",
             'happy'
           )}
 
           <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-amber-300 shadow-lg space-y-6">
-            <div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-200">
-              <h3 class="text-xl font-extrabold text-amber-900 mb-2">🔐 Apa Itu Kode Rahasia?</h3>
-              <p class="text-slate-800 font-semibold text-base sm:text-lg">
+            <div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-300">
+              <h3 class="text-xl sm:text-2xl font-extrabold text-amber-900 mb-2">🔐 Apa Itu Kode Rahasia (Penyandian / Enkripsi)?</h3>
+              <p class="text-base sm:text-lg text-slate-800 font-semibold leading-relaxed">
                 "Kode rahasia adalah cara mengubah pesan menjadi bentuk tertentu agar tidak mudah dipahami oleh orang lain yang tidak mengetahui aturan kodenya."
               </p>
-              <p class="mt-3 text-xs sm:text-sm text-amber-900 bg-white/80 p-3 rounded-xl border border-amber-300">
-                ⚠️ <strong>Catatan Keamanan Digital:</strong> Penyandian membantu melindungi informasi, tetapi kode pergeseran sederhana dalam permainan ini adalah latihan logika dasar—bukan pengganti sistem keamanan sandi modern yang sebenarnya.
+              <p class="text-xs sm:text-sm text-amber-800 mt-3 bg-white/80 p-3 rounded-xl border border-amber-200">
+                ⚠️ <strong>Catatan Keamanan Digital:</strong> Penyandian membantu menjaga kerahasiaan data di jaringan. Namun, aturan geser huruf sederhana dalam pembelajaran ini hanyalah latihan dasar berpikir komputasional dan bukan pengganti sistem enkripsi modern (seperti HTTPS/AES) pada aplikasi nyata.
               </p>
             </div>
 
-            <!-- Visualisasi Transformasi HALO -> IBMP -->
-            <div class="p-6 rounded-3xl bg-slate-900 text-white text-center">
-              <p class="text-xs font-extrabold uppercase tracking-widest text-cyan-300 mb-3">
-                Aturan Kode: Setiap Huruf Digeser 1 Langkah Maju (A→B, B→C, ..., Z→A)
-              </p>
-
-              <div class="flex flex-col sm:flex-row items-center justify-center gap-4 my-4">
-                <div class="bg-blue-600/30 border-2 border-blue-400 px-6 py-4 rounded-2xl">
-                  <p class="text-xs text-blue-200 font-bold mb-1">PESAN ASLI</p>
-                  <div class="flex gap-2 justify-center text-2xl sm:text-3xl font-display font-extrabold text-white">
-                    <span class="w-10 h-11 rounded-lg bg-blue-600 flex items-center justify-center">H</span>
-                    <span class="w-10 h-11 rounded-lg bg-blue-600 flex items-center justify-center">A</span>
-                    <span class="w-10 h-11 rounded-lg bg-blue-600 flex items-center justify-center">L</span>
-                    <span class="w-10 h-11 rounded-lg bg-blue-600 flex items-center justify-center">O</span>
-                  </div>
+            <!-- Visualisasi Alur Enkripsi & Dekripsi -->
+            <div class="bg-slate-900 text-white rounded-3xl p-6 text-center">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-300">Contoh Aturan Geser +1 Huruf Maju (A&rarr;B, B&rarr;C, ..., Z&rarr;A)</span>
+              <div class="mt-4 flex flex-col md:flex-row items-center justify-center gap-4">
+                <div class="p-4 rounded-2xl bg-blue-600/40 border-2 border-blue-400 w-full md:w-56">
+                  <p class="text-xs text-blue-200 font-bold">PESAN ASLI</p>
+                  <p class="text-3xl font-display font-extrabold tracking-widest text-yellow-300 mt-1">HALO</p>
                 </div>
 
-                <div class="text-yellow-300 font-bold text-sm sm:text-base">
-                  <div>+1 Huruf Maju ➡️</div>
-                  <div class="text-xs text-slate-400 mt-1">⬅️ -1 Huruf Mundur</div>
+                <div class="text-2xl font-bold text-cyan-400">
+                  ➡️ <span class="text-xs block">Enkripsi (+1)</span>
                 </div>
 
-                <div class="bg-amber-500/20 border-2 border-amber-400 px-6 py-4 rounded-2xl">
-                  <p class="text-xs text-amber-200 font-bold mb-1">PESAN RAHASIA</p>
-                  <div class="flex gap-2 justify-center text-2xl sm:text-3xl font-display font-extrabold text-yellow-300">
-                    <span class="w-10 h-11 rounded-lg bg-amber-600 flex items-center justify-center">I</span>
-                    <span class="w-10 h-11 rounded-lg bg-amber-600 flex items-center justify-center">B</span>
-                    <span class="w-10 h-11 rounded-lg bg-amber-600 flex items-center justify-center">M</span>
-                    <span class="w-10 h-11 rounded-lg bg-amber-600 flex items-center justify-center">P</span>
-                  </div>
+                <div class="p-4 rounded-2xl bg-purple-600/40 border-2 border-purple-400 w-full md:w-56">
+                  <p class="text-xs text-purple-200 font-bold">PESAN RAHASIA (KODE)</p>
+                  <p class="text-3xl font-display font-extrabold tracking-widest text-emerald-300 mt-1">IBMP</p>
+                </div>
+
+                <div class="text-2xl font-bold text-cyan-400">
+                  ➡️ <span class="text-xs block">Dekripsi (-1)</span>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-emerald-600/40 border-2 border-emerald-400 w-full md:w-56">
+                  <p class="text-xs text-emerald-200 font-bold">DIBACA KEMBALI</p>
+                  <p class="text-3xl font-display font-extrabold tracking-widest text-white mt-1">HALO</p>
                 </div>
               </div>
 
-              <p class="text-xs text-slate-300 mt-2">
-                Cara membaca kembali: <strong>I &rarr; H</strong>, <strong>B &rarr; A</strong>, <strong>M &rarr; L</strong>, <strong>P &rarr; O</strong> = <strong>HALO</strong>.
-              </p>
+              <div class="mt-5 grid grid-cols-4 gap-2 max-w-md mx-auto text-xs font-bold">
+                <div class="bg-slate-800 p-2 rounded-xl">H &rarr; <span class="text-yellow-300">I</span></div>
+                <div class="bg-slate-800 p-2 rounded-xl">A &rarr; <span class="text-yellow-300">B</span></div>
+                <div class="bg-slate-800 p-2 rounded-xl">L &rarr; <span class="text-yellow-300">M</span></div>
+                <div class="bg-slate-800 p-2 rounded-xl">O &rarr; <span class="text-yellow-300">P</span></div>
+              </div>
             </div>
 
             <div class="flex justify-end">
-              <button onclick="completeZoneStep(3, 'materi', 40, 1, 'Materi Kode Rahasia Dipahami!', 'Ayo coba Mesin Kode Rahasia sekarang!'); setZoneTab(3, 'simulasi');"
+              <button onclick="completeZoneStep(3, 'materi', 40, 1, 'Materi Kode Rahasia Dipahami!', 'Ayo coba menyandikan pesanmu di Mesin Kode Rahasia!'); setZoneTab(3, 'simulasi');"
                 class="btn-game px-6 py-3.5 rounded-2xl bg-amber-500 text-slate-900 font-display font-bold text-base">
-                Buka Mesin Kode Rahasia ➡️
+                Lanjut ke Simulasi "Mesin Kode Rahasia" ➡️
               </button>
             </div>
           </div>
@@ -2322,76 +2370,51 @@
       } else if (tab === 'simulasi') {
         content = `
           ${renderNetoBox(
-            "Gunakan <strong>Mesin Kode Rahasia</strong> ini untuk mengubah pesan biasa menjadi sandi (<strong>Enkripsi</strong>) atau membaca kembali pesan berkode (<strong>Dekripsi</strong>) dengan aturan pergeseran +1 huruf!",
+            "Gunakan <strong>Mesin Kode Rahasia</strong> di bawah ini! Ketik pesan apa saja (misalnya: <em>AKU SUKA INFORMATIKA</em>), lalu tekan tombol <strong>UBAH MENJADI KODE</strong> untuk enkripsi atau <strong>BACA KODE</strong> untuk dekripsi!",
             'happy'
           )}
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- MODE 1: ENKRIPSI -->
-            <div class="bg-white rounded-3xl p-6 border-4 border-blue-300 shadow-lg">
-              <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-extrabold">MODE 1: ENKRIPSI (+1 HURUF)</span>
-              <h3 class="text-xl font-extrabold text-slate-800 mt-2 mb-3">🔒 Ubah Pesan Biasa ke Kode</h3>
-              <label class="block text-xs font-bold text-slate-600 mb-1">Ketik Pesan Asli (Contoh: AKU SUKA INFORMATIKA):</label>
-              <input id="enc-input" type="text" value="AKU SUKA INFORMATIKA" maxlength="45"
-                class="w-full p-3.5 rounded-2xl bg-slate-50 border-2 border-slate-300 font-bold uppercase text-slate-800 focus:outline-none focus:border-blue-500" />
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-cyan-300 shadow-lg max-w-3xl mx-auto">
+            <div class="mb-4">
+              <label class="block text-sm font-extrabold text-slate-700 mb-2">✍️ Masukkan Teks Pesan atau Kode Rahasia:</label>
+              <input id="cipher-machine-input" type="text" value="AKU SUKA INFORMATIKA" maxlength="60"
+                placeholder="Ketik pesan di sini..."
+                class="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-300 focus:border-blue-500 focus:outline-none text-base sm:text-lg font-bold uppercase tracking-wider text-slate-800" />
+            </div>
 
+            <div class="flex flex-wrap gap-3 mb-6">
               <button onclick="runCipherMachine('encrypt')"
-                class="btn-game w-full mt-3 py-3.5 rounded-2xl bg-blue-600 text-white font-display font-bold text-base">
-                🔐 UBAH MENJADI KODE
+                class="btn-game flex-1 py-3.5 px-5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-display font-bold text-sm sm:text-base">
+                🔒 MODE 1: UBAH MENJADI KODE (+1)
               </button>
-
-              <div class="mt-4 p-4 rounded-2xl bg-slate-900 text-center">
-                <p class="text-xs text-cyan-300 font-bold mb-1">HASIL PESAN RAHASIA:</p>
-                <p id="enc-output" class="text-xl sm:text-2xl font-display font-extrabold text-yellow-300 tracking-wider break-words min-h-[2rem]">
-                  BLV TVLB JOGPSNBUJLB
-                </p>
-              </div>
-            </div>
-
-            <!-- MODE 2: DEKRIPSI -->
-            <div class="bg-white rounded-3xl p-6 border-4 border-emerald-300 shadow-lg">
-              <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">MODE 2: DEKRIPSI (-1 HURUF)</span>
-              <h3 class="text-xl font-extrabold text-slate-800 mt-2 mb-3">🔓 Baca Kembali Pesan Berkode</h3>
-              <label class="block text-xs font-bold text-slate-600 mb-1">Masukkan Pesan Berkode (Contoh: BLV TVLB JOGPSNBUJLB):</label>
-              <input id="dec-input" type="text" value="BLV TVLB JOGPSNBUJLB" maxlength="45"
-                class="w-full p-3.5 rounded-2xl bg-slate-50 border-2 border-slate-300 font-bold uppercase text-slate-800 focus:outline-none focus:border-emerald-500" />
-
               <button onclick="runCipherMachine('decrypt')"
-                class="btn-game w-full mt-3 py-3.5 rounded-2xl bg-emerald-600 text-white font-display font-bold text-base">
-                🔓 BACA KODE
+                class="btn-game flex-1 py-3.5 px-5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-bold text-sm sm:text-base">
+                🔓 MODE 2: BACA KODE (-1)
               </button>
+            </div>
 
-              <div class="mt-4 p-4 rounded-2xl bg-slate-900 text-center">
-                <p class="text-xs text-emerald-300 font-bold mb-1">PESAN ASLI TERBACA:</p>
-                <p id="dec-output" class="text-xl sm:text-2xl font-display font-extrabold text-white tracking-wider break-words min-h-[2rem]">
-                  AKU SUKA INFORMATIKA
-                </p>
+            <!-- Layar Hasil Mesin -->
+            <div class="bg-slate-900 rounded-3xl p-6 text-center border-4 border-slate-700">
+              <p id="cipher-machine-mode-label" class="text-xs font-extrabold uppercase tracking-wider text-cyan-300 mb-2">
+                Hasil Proses Mesin Penyandian
+              </p>
+              <div id="cipher-machine-output" class="min-h-[3.5rem] flex flex-wrap items-center justify-center gap-1.5 text-2xl sm:text-3xl font-display font-extrabold text-yellow-300 tracking-widest">
+                BLV TVLB JOGPSNBUJLB
               </div>
+              <p id="cipher-machine-explain" class="text-xs text-slate-300 mt-3">
+                Aturan Aktif: Setiap huruf digeser 1 langkah maju (A&rarr;B, ..., Z&rarr;A). Spasi tetap dipertahankan.
+              </p>
             </div>
-          </div>
 
-          <!-- Tabel Referensi Pergeseran Alfabet -->
-          <div class="mt-5 bg-white rounded-2xl p-4 border-2 border-slate-200 overflow-x-auto">
-            <p class="text-xs font-extrabold text-slate-600 mb-2">📊 Tabel Bantu Pergeseran +1 Huruf (A→B, ..., Z→A):</p>
-            <div class="flex gap-1.5 min-w-max text-center text-xs font-bold">
-              ${'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((ch, i) => {
-                const nextCh = String.fromCharCode(65 + ((i + 1) % 26));
-                return `
-                  <div class="px-2 py-1 rounded-lg bg-slate-100 border border-slate-200">
-                    <div class="text-blue-700">${ch}</div>
-                    <div class="text-[10px] text-slate-400">↓</div>
-                    <div class="text-amber-600">${nextCh}</div>
-                  </div>
-                `;
-              }).join('')}
+            <div class="mt-6 flex justify-between items-center flex-wrap gap-3">
+              <button onclick="copyCipherOutput()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm">
+                📋 Salin Hasil Kode
+              </button>
+              <button onclick="completeZoneStep(3, 'simulasi', 50, 1, 'Operator Mesin Sandi!', 'Kamu berhasil menguji enkripsi dan dekripsi!'); setZoneTab(3, 'game');"
+                class="btn-game px-6 py-3.5 rounded-2xl bg-amber-500 text-slate-900 font-display font-bold text-base">
+                Lanjut ke Permainan "Pecahkan Kode" ➡️
+              </button>
             </div>
-          </div>
-
-          <div class="mt-5 flex justify-end">
-            <button onclick="completeZoneStep(3, 'simulasi', 50, 1, 'Operator Mesin Sandi!', 'Kamu berhasil mengoperasikan Enkripsi dan Dekripsi!'); setZoneTab(3, 'game');"
-              class="btn-game px-6 py-3.5 rounded-2xl bg-amber-500 text-slate-900 font-display font-bold text-base">
-              Lanjut ke Permainan "Pecahkan Kode" ➡️
-            </button>
           </div>
         `;
       } else if (tab === 'game') {
@@ -2402,132 +2425,136 @@
 
         content = `
           ${renderNetoBox(
-            "<strong>Permainan Pecahkan Kode (5 Level):</strong> Gunakan aturan geser mundur 1 huruf (B→A, C→B, ..., A→Z) untuk menerjemahkan sandi rahasia berikut!",
-            allSolved ? 'celebrate' : 'happy'
+            "<strong>Permainan Pecahkan Kode (5 Level Multi-Rumus):</strong> Hati-hati Detektif! Setiap level menggunakan <strong>rumus sandi yang berbeda</strong>. Perhatikan kotak rumus pada tiap level untuk memecahkan pesannya!",
+            allSolved ? 'celebrate' : 'thinking'
           )}
 
-          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-amber-300 shadow-lg max-w-2xl mx-auto">
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-purple-300 shadow-lg max-w-2xl mx-auto">
             <!-- Pemilih Level 1-5 -->
-            <div class="flex justify-center gap-2 mb-6">
-              ${CIPHER_LEVELS.map((l, i) => `
+            <div class="flex items-center justify-center gap-2 mb-6">
+              ${CIPHER_LEVELS.map((lv, i) => `
                 <button onclick="selectCipherLevel(${i})"
                   class="w-11 h-11 rounded-2xl font-display font-bold text-sm border-2 transition ${
                     i === lvlIdx
-                      ? 'bg-amber-500 text-white border-amber-600 scale-105'
+                      ? 'bg-purple-600 text-white border-purple-700 scale-110'
                       : solvedArr[i]
                         ? 'bg-emerald-100 text-emerald-800 border-emerald-400'
                         : 'bg-slate-100 text-slate-600 border-slate-300'
                   }">
-                  ${solvedArr[i] ? '⭐' : l.level}
+                  ${solvedArr[i] ? '✅' : lv.level}
                 </button>
               `).join('')}
             </div>
 
             <div class="text-center">
-              <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold">
-                LEVEL ${curLvl.level} DARI 5
-              </span>
+              <div class="flex flex-wrap items-center justify-center gap-2 mb-2">
+                <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-extrabold uppercase">
+                  Tantangan Level ${curLvl.level} dari 5
+                </span>
+                <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-xs font-extrabold">
+                  🔑 ${curLvl.ruleBadge}
+                </span>
+              </div>
 
-              <div class="my-4 p-5 rounded-2xl bg-slate-900 text-yellow-300 font-display font-extrabold text-3xl sm:text-4xl tracking-[0.2em]">
+              <div class="mb-4 p-3 rounded-2xl bg-blue-50 border border-blue-200 text-xs sm:text-sm text-blue-900 font-medium">
+                <strong>Aturan Level ${curLvl.level}:</strong> ${curLvl.ruleDesc}
+              </div>
+
+              <div class="my-3 p-5 rounded-3xl bg-slate-900 text-yellow-300 font-display text-3xl sm:text-4xl font-extrabold tracking-[0.22em]">
                 ${curLvl.code}
               </div>
 
-              <div class="flex flex-col sm:flex-row gap-2.5 max-w-md mx-auto">
-                <input id="cipher-answer-input" type="text" placeholder="Ketik pesan aslinya..."
-                  value="${solvedArr[lvlIdx] ? curLvl.answer : ''}"
-                  onkeydown="if(event.key==='Enter') checkCipherLevel()"
-                  class="flex-1 px-4 py-3 rounded-2xl bg-slate-50 border-2 border-slate-300 font-extrabold uppercase text-center text-lg focus:outline-none focus:border-amber-500" />
-                <button onclick="checkCipherLevel()"
-                  class="btn-game px-6 py-3 rounded-2xl bg-emerald-600 text-white font-display font-bold">
+              <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mt-4">
+                <input id="cipher-game-answer" type="text" placeholder="Ketik pesan aslinya..."
+                  class="flex-1 px-4 py-3 rounded-2xl border-2 border-slate-300 focus:border-purple-500 focus:outline-none text-center font-bold uppercase tracking-wider text-lg" />
+                <button onclick="checkCipherLevelAnswer()"
+                  class="btn-game px-6 py-3 rounded-2xl bg-emerald-500 text-white font-display font-bold">
                   PERIKSA
                 </button>
               </div>
 
               <div class="mt-3">
-                <button onclick="document.getElementById('cipher-hint-box').classList.toggle('hidden')"
-                  class="text-xs font-bold text-blue-600 hover:underline">
+                <button onclick="showCipherLevelHint()" class="text-xs font-bold text-blue-600 hover:underline">
                   💡 Butuh Petunjuk NETO?
                 </button>
-                <p id="cipher-hint-box" class="hidden mt-2 text-xs text-slate-600 bg-blue-50 p-3 rounded-xl border border-blue-200">
-                  ${curLvl.hint}
-                </p>
               </div>
 
-              <div id="cipher-level-feedback" class="mt-4"></div>
-
-              ${allSolved ? `
-                <div class="mt-6 p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-400 text-emerald-900 animate-pop">
-                  <p class="font-display font-bold text-lg">🎉 Luar Biasa! Ke-5 Level Sandi Terpecahkan!</p>
-                  <button onclick="setZoneTab(3, 'tantangan')" class="btn-game mt-3 px-6 py-3 rounded-2xl bg-emerald-600 text-white font-display font-bold text-sm">
-                    Lanjut ke Tantangan Kreatif ➡️
-                  </button>
-                </div>
-              ` : ''}
+              <div id="cipher-level-feedback" class="mt-4 hidden p-4 rounded-2xl text-sm font-medium"></div>
             </div>
+
+            ${allSolved ? `
+              <div class="mt-6 p-5 rounded-2xl bg-emerald-100 border-2 border-emerald-400 text-center animate-pop">
+                <p class="font-display font-bold text-lg text-emerald-900">🎉 Kelima Level Kode Rahasia Terpecahkan!</p>
+                <button onclick="setZoneTab(3, 'tantangan')" class="btn-game mt-3 px-6 py-3 rounded-2xl bg-purple-600 text-white font-display font-bold text-sm">
+                  Lanjut ke Tantangan Kreatif ➡️
+                </button>
+              </div>
+            ` : ''}
           </div>
         `;
       } else {
-        // Tantangan Kreatif "Buat Kode Rahasia Sendiri"
+        // Tantangan Kreatif: Buat Kode Rahasia Sendiri & Uji Teman
+        const createdCode = state.zone3.friendChallengeCode;
+        const createdShift = state.zone3.friendChallengeShift || 1;
+
         content = `
           ${renderNetoBox(
-            "<strong>Tantangan Kolaborasi & Kreativitas:</strong> Buat pesan rahasia milikmu sendiri, pilih jumlah pergeseran hurufnya, lalu tantang teman sebangkumu untuk memecahkannya!",
+            "<strong>Tantangan Kreatif & Kolaborasi:</strong> Buat pesan rahasiamu sendiri dengan memilih jumlah pergeseran huruf, lalu tantang teman sebangkumu untuk membacanya!",
             'happy'
           )}
 
-          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-purple-300 shadow-lg max-w-3xl mx-auto space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="sm:col-span-2">
-                <label class="block text-xs font-bold text-slate-700 mb-1">1. Tulis Pesan Rahasiamu:</label>
-                <input id="custom-plain-input" type="text" placeholder="Contoh: JAGA RAHASIA PASSWORD"
-                  value="${state.zone3.friendChallengePlain || ''}"
-                  class="w-full p-3 rounded-2xl bg-slate-50 border-2 border-slate-300 font-bold uppercase" />
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">2. Aturan Pergeseran:</label>
-                <select id="custom-shift-select" class="w-full p-3 rounded-2xl bg-slate-50 border-2 border-slate-300 font-bold">
-                  <option value="1" ${state.zone3.friendChallengeShift == 1 ? 'selected' : ''}>Geser +1 Huruf</option>
-                  <option value="2" ${state.zone3.friendChallengeShift == 2 ? 'selected' : ''}>Geser +2 Huruf</option>
-                  <option value="3" ${state.zone3.friendChallengeShift == 3 ? 'selected' : ''}>Geser +3 Huruf</option>
-                </select>
-              </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <!-- Langkah 1: Pembuat Kode -->
+            <div class="bg-white rounded-3xl p-6 border-4 border-amber-300 shadow-lg">
+              <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold">Langkah 1 • Untukmu</span>
+              <h3 class="text-xl font-extrabold text-slate-800 mt-2 mb-3">✍️ Buat Kode Rahasia Sendiri</h3>
+
+              <label class="block text-xs font-bold text-slate-600 mb-1">Pesan Rahasia Asli:</label>
+              <input id="custom-plain-input" type="text" placeholder="Contoh: SEMANGAT BELAJAR" maxlength="40"
+                class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 font-bold uppercase text-sm mb-3" />
+
+              <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Aturan Pergeseran Huruf:</label>
+              <select id="custom-shift-select" class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 font-bold text-sm mb-4">
+                <option value="1">Geser +1 Huruf Maju (A &rarr; B)</option>
+                <option value="2">Geser +2 Huruf Maju (A &rarr; C)</option>
+                <option value="3">Geser +3 Huruf Maju (A &rarr; D)</option>
+              </select>
+
+              <button onclick="createFriendCipher()" class="btn-game w-full py-3 rounded-2xl bg-amber-400 text-slate-900 font-display font-bold text-sm">
+                🔐 Buat Pesan Berkode!
+              </button>
             </div>
 
-            <button onclick="generateFriendChallenge()"
-              class="btn-game w-full py-3.5 rounded-2xl bg-purple-600 text-white font-display font-bold text-base">
-              ✨ BUAT KODE RAHASIA UNTUK TEMAN
-            </button>
+            <!-- Langkah 2: Tantang Teman -->
+            <div class="bg-white rounded-3xl p-6 border-4 border-cyan-300 shadow-lg flex flex-col justify-between">
+              <div>
+                <span class="px-3 py-1 rounded-full bg-cyan-100 text-cyan-800 text-xs font-extrabold">Langkah 2 • Kolaborasi Teman</span>
+                <h3 class="text-xl font-extrabold text-slate-800 mt-2 mb-3">🤝 Tantang Teman Membaca Kode</h3>
 
-            ${state.zone3.friendChallengeCode ? `
-              <div class="p-5 rounded-2xl bg-slate-900 text-white text-center animate-pop">
-                <p class="text-xs text-cyan-300 font-bold">KODE RAHASIA SIAP DIBERIKAN KE TEMAN (Aturan: +${state.zone3.friendChallengeShift} Huruf):</p>
-                <p class="text-2xl sm:text-3xl font-display font-extrabold text-yellow-300 tracking-widest my-2 break-words">
-                  ${state.zone3.friendChallengeCode}
-                </p>
-                <p class="text-xs text-slate-400">Minta temanmu menebak pesan aslinya tanpa melihat kotak input di atas!</p>
-              </div>
-
-              <!-- Kotak Uji Teman -->
-              <div class="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-300">
-                <label class="block text-xs font-bold text-emerald-900 mb-1.5">🤝 Uji Tebakan Teman di Sini:</label>
-                <div class="flex flex-col sm:flex-row gap-2">
-                  <input id="friend-guess-input" type="text" placeholder="Teman mengetik terjemahan pesan..."
-                    class="flex-1 px-4 py-2.5 rounded-xl bg-white border border-emerald-400 font-bold uppercase text-sm" />
-                  <button onclick="verifyFriendGuess()" class="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-sm">
-                    Cek Jawaban Teman
+                ${createdCode ? `
+                  <div class="p-4 rounded-2xl bg-slate-900 text-center mb-3">
+                    <p class="text-[11px] text-cyan-300 font-bold">KODE UNTUK TEMANMU (Aturan: +${createdShift} Huruf):</p>
+                    <p class="text-xl font-display font-extrabold text-yellow-300 tracking-widest mt-1">${createdCode}</p>
+                  </div>
+                  <input id="friend-guess-input" type="text" placeholder="Teman mengetik arti kode di sini..."
+                    class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 font-bold uppercase text-sm mb-2" />
+                  <button onclick="verifyFriendGuess()" class="btn-game w-full py-2.5 rounded-xl bg-cyan-600 text-white font-display font-bold text-sm">
+                    🔍 Cek Jawaban Teman
                   </button>
-                </div>
-                <p id="friend-guess-feedback" class="text-xs font-bold mt-2"></p>
+                  <p id="friend-guess-feedback" class="text-xs font-bold mt-2"></p>
+                ` : `
+                  <div class="p-6 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-300 text-center text-sm text-slate-500">
+                    Buat pesan berkode di kotak sebelah kiri terlebih dahulu untuk menguji temanmu!
+                  </div>
+                `}
               </div>
-            ` : ''}
 
-            <div class="pt-2 flex justify-between items-center">
-              <button onclick="navigateTo('map')" class="px-5 py-3 rounded-2xl bg-slate-200 text-slate-800 font-bold text-sm">
-                ⬅️ Kembali ke Peta
-              </button>
-              <button onclick="completeZoneStep(3, 'tantangan', 70, 2, 'Zona 3 Tuntas!', 'Seluruh zona selesai! Ayo lanjut ke Ujian Akhir!'); navigateTo('quiz');"
-                class="btn-game px-6 py-3.5 rounded-2xl bg-emerald-600 text-white font-display font-bold text-sm sm:text-base">
-                🏁 Selesai Zona 3 & Lanjut Ujian Akhir ➡️
-              </button>
+              <div class="mt-5 pt-4 border-t border-slate-100">
+                <button onclick="completeZoneStep(3, 'tantangan', 60, 2, 'Zona 3 Tuntas!', 'Seluruh Zona Petualangan telah selesai! Kuis Akhir terbuka!'); navigateTo('map');"
+                  class="btn-game w-full py-3.5 rounded-2xl bg-emerald-600 text-white font-display font-bold text-sm">
+                  ✅ Selesaikan Zona 3 & Buka Kuis Akhir!
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -2544,28 +2571,54 @@
     }
 
     function runCipherMachine(mode) {
-      AudioEngine.playClick();
-      if (mode === 'encrypt') {
-        const inp = document.getElementById('enc-input');
-        const out = document.getElementById('enc-output');
-        if (!inp || !out) return;
-        const result = caesarShift(inp.value, 1);
-        out.textContent = result || '—';
-        out.classList.remove('animate-pop');
-        void out.offsetWidth;
-        out.classList.add('animate-pop');
-        AudioEngine.playCorrect();
-      } else {
-        const inp = document.getElementById('dec-input');
-        const out = document.getElementById('dec-output');
-        if (!inp || !out) return;
-        const result = caesarShift(inp.value, -1);
-        out.textContent = result || '—';
-        out.classList.remove('animate-pop');
-        void out.offsetWidth;
-        out.classList.add('animate-pop');
-        AudioEngine.playCorrect();
+      const inputEl = document.getElementById('cipher-machine-input');
+      const outEl = document.getElementById('cipher-machine-output');
+      const modeLbl = document.getElementById('cipher-machine-mode-label');
+      const expLbl = document.getElementById('cipher-machine-explain');
+      if (!inputEl || !outEl) return;
+
+      const raw = inputEl.value.toUpperCase();
+      if (!raw.trim()) {
+        AudioEngine.playWrong();
+        showToast('✍️', 'Kolom Kosong', 'Ketik pesan huruf terlebih dahulu ya!');
+        return;
       }
+
+      AudioEngine.playClick();
+      const shift = mode === 'encrypt' ? 1 : -1;
+      const result = caesarShift(raw, shift);
+
+      modeLbl.textContent = mode === 'encrypt'
+        ? '🔒 HASIL ENKRIPSI (GESER +1 HURUF MAJU)'
+        : '🔓 HASIL DEKRIPSI (GESER -1 HURUF MUNDUR)';
+      expLbl.textContent = mode === 'encrypt'
+        ? `Setiap huruf pada "${raw}" digeser 1 langkah maju menjadi kode rahasia.`
+        : `Setiap huruf berkode pada "${raw}" digeser 1 langkah mundur menjadi pesan asli.`;
+
+      outEl.innerHTML = '';
+      result.split('').forEach((char, idx) => {
+        const span = document.createElement('span');
+        span.className = char === ' '
+          ? 'w-4'
+          : 'inline-block px-2 py-1 rounded-xl bg-slate-800 border border-cyan-500/40 animate-pop';
+        span.style.animationDelay = `${idx * 0.03}s`;
+        span.textContent = char;
+        outEl.appendChild(span);
+      });
+    }
+
+    function copyCipherOutput() {
+      const outEl = document.getElementById('cipher-machine-output');
+      if (!outEl) return;
+      const text = outEl.textContent.trim();
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      AudioEngine.playClick();
+      showToast('📋', 'Tersalin!', `Teks "${text}" berhasil disalin.`);
     }
 
     function selectCipherLevel(idx) {
@@ -2575,38 +2628,53 @@
       renderApp();
     }
 
-    function checkCipherLevel() {
+    function checkCipherLevelAnswer() {
       const idx = state.zone3.cipherLevel || 0;
-      const curLvl = CIPHER_LEVELS[idx];
-      const inp = document.getElementById('cipher-answer-input');
+      const lvl = CIPHER_LEVELS[idx];
+      const inp = document.getElementById('cipher-game-answer');
       const fb = document.getElementById('cipher-level-feedback');
       if (!inp || !fb) return;
 
       const userAns = inp.value.trim().toUpperCase();
-      if (userAns === curLvl.answer) {
-        state.zone3.cipherSolved[idx] = true;
+      fb.classList.remove('hidden');
+
+      if (userAns === lvl.answer) {
         AudioEngine.playCorrect();
-        fb.innerHTML = `<div class="p-3 rounded-xl bg-emerald-100 text-emerald-900 font-bold text-sm animate-pop">✅ Benar! Kode <strong>${curLvl.code}</strong> artinya <strong>${curLvl.answer}</strong>!</div>`;
-        saveState();
+        state.zone3.cipherSolved[idx] = true;
+        fb.className = 'mt-4 p-4 rounded-2xl text-sm font-medium bg-emerald-100 border border-emerald-400 text-emerald-900 animate-pop';
+        fb.innerHTML = `🎉 <strong>Tepat Sekali!</strong> Pesan aslinya adalah <strong>${lvl.answer}</strong>.<br><span class="text-xs">${lvl.explain}</span>`;
 
         if (state.zone3.cipherSolved.every(Boolean)) {
-          completeZoneStep(3, 'game', 70, 2, 'Master Pemecah Kode!', 'Ke-5 level sandi rahasia berhasil kamu pecahkan!');
-        } else if (idx < CIPHER_LEVELS.length - 1) {
-          setTimeout(() => {
-            state.zone3.cipherLevel = idx + 1;
-            saveState();
-            renderApp();
-          }, 1100);
+          completeZoneStep(3, 'game', 75, 2, 'Master Pemecah Kode!', 'Semua 5 level kode rahasia multi-rumus berhasil dipecahkan!');
         } else {
-          renderApp();
+          saveState();
+          setTimeout(() => {
+            if (idx < CIPHER_LEVELS.length - 1) {
+              state.zone3.cipherLevel = idx + 1;
+              saveState();
+              renderApp();
+            }
+          }, 1400);
         }
       } else {
         AudioEngine.playWrong();
-        fb.innerHTML = `<div class="p-3 rounded-xl bg-rose-100 text-rose-800 font-bold text-sm animate-shake">❌ Belum tepat. Ingat aturan geser 1 huruf mundur (contoh: B menjadi A). Coba lagi!</div>`;
+        fb.className = 'mt-4 p-4 rounded-2xl text-sm font-medium bg-rose-100 border border-rose-300 text-rose-900 animate-shake';
+        fb.innerHTML = `🤔 Belum tepat! Perhatikan kotak aturan di atas (${lvl.ruleBadge}) dan coba lagi.`;
       }
     }
 
-    function generateFriendChallenge() {
+    function showCipherLevelHint() {
+      AudioEngine.playClick();
+      const idx = state.zone3.cipherLevel || 0;
+      const lvl = CIPHER_LEVELS[idx];
+      const fb = document.getElementById('cipher-level-feedback');
+      if (!fb) return;
+      fb.classList.remove('hidden');
+      fb.className = 'mt-4 p-4 rounded-2xl text-sm font-medium bg-blue-50 border border-blue-300 text-blue-900';
+      fb.innerHTML = `💡 <strong>Petunjuk NETO:</strong> ${lvl.hint}`;
+    }
+
+    function createFriendCipher() {
       const plainEl = document.getElementById('custom-plain-input');
       const shiftEl = document.getElementById('custom-shift-select');
       if (!plainEl || !shiftEl) return;
@@ -2614,13 +2682,15 @@
       const plain = plainEl.value.trim().toUpperCase();
       if (!plain) {
         AudioEngine.playWrong();
-        showToast('⚠️', 'Pesan Kosong', 'Tuliskan pesan terlebih dahulu sebelum membuat kode!');
+        showToast('✍️', 'Isi Pesan Dulu', 'Tuliskan pesan yang ingin kamu ubah menjadi kode rahasia.');
         return;
       }
+
       const shift = Number(shiftEl.value) || 1;
+      const coded = caesarShift(plain, shift);
       state.zone3.friendChallengePlain = plain;
       state.zone3.friendChallengeShift = shift;
-      state.zone3.friendChallengeCode = caesarShift(plain, shift);
+      state.zone3.friendChallengeCode = coded;
       AudioEngine.playCorrect();
       saveState();
       renderApp();
@@ -2644,681 +2714,369 @@
     }
 
     // =========================================================================
-    // 10. KUIS EVALUASI AKHIR (38 SOAL INTERAKTIF TERACAK OTOMATIS)
+    // 10. KUIS EVALUASI AKHIR (38 SOAL BARU & MULTI-RUMUS SANDI TERACAK)
     // =========================================================================
     const QUIZ_QUESTIONS = [
-      // --- BAGIAN A: JARINGAN KOMPUTER, PERANGKAT & MANFAAT (13 SOAL) ---
+      // --- BAGIAN A: JARINGAN KOMPUTER, PERANGKAT & MANFAAT (13 SOAL BARU) ---
       {
-        topic: 'Jaringan Komputer',
         type: 'Pilihan Ganda',
-        q: 'Apa yang dimaksud dengan jaringan komputer?',
-        options: [
-          'Hubungan antara dua atau lebih perangkat digital agar saling berkomunikasi dan berbagi data',
-          'Satu buah komputer yang diletakkan di ruang kepala sekolah tanpa kabel apa pun',
-          'Program permainan yang hanya bisa dimainkan sendirian tanpa internet',
-          'Alat untuk membersihkan layar monitor dari debu'
-        ],
-        ans: 0,
-        explain: 'Jaringan komputer menghubungkan dua atau lebih perangkat agar dapat bertukar informasi dan berbagi sumber daya.'
+        q: 'Dua laptop dan satu tablet yang saling terhubung agar dapat bertukar dokumen belajar merupakan contoh sederhana dari...',
+        options: ['Jaringan komputer', 'Sistem operasi tunggal', 'Penyimpanan eksternal', 'Perangkat keras output'],
+        answer: 0,
+        explanation: 'Hubungan antara dua atau lebih perangkat digital untuk berkomunikasi dan bertukar data disebut jaringan komputer.'
       },
       {
-        topic: 'Jaringan Komputer',
         type: 'Pilihan Ganda',
-        q: 'Manakah yang merupakan manfaat utama berbagi printer melalui jaringan komputer di sekolah?',
-        options: [
-          'Satu printer dapat digunakan bersama oleh banyak komputer sehingga hemat biaya',
-          'Setiap komputer harus membeli printer masing-masing agar bisa mencetak',
-          'Printer dapat mencetak tanpa menggunakan kertas dan tinta',
-          'Komputer menjadi tidak perlu dinyalakan saat mencetak'
-        ],
-        ans: 0,
-        explain: 'Berbagi sumber daya (resource sharing) memungkinkan satu printer dipakai bersama oleh banyak pengguna dalam jaringan.'
+        q: 'Alat pusat dalam jaringan sekolah yang bertugas mengatur lalu lintas pengiriman data antarperangkat adalah...',
+        options: ['Switch atau Router', 'Scanner dokumen', 'Speaker aktif', 'Proyektor LCD'],
+        answer: 0,
+        explanation: 'Switch dan router berfungsi sebagai penghubung sekaligus pengatur jalur data antarperangkat dalam jaringan.'
       },
       {
-        topic: 'Jaringan Komputer',
         type: 'Benar / Salah',
-        q: 'BENAR atau SALAH: Perangkat yang dapat terhubung dalam jaringan komputer hanya komputer meja (PC), sedangkan smartphone dan laptop tidak bisa.',
-        options: ['Salah', 'Benar'],
-        ans: 0,
-        explain: 'SALAH. Selain PC, laptop, smartphone, tablet, dan printer juga dapat terhubung ke dalam jaringan.'
+        q: 'PERNYATAAN: "Jaringan komputer hanya dapat menghubungkan komputer meja (PC) saja, sedangkan smartphone dan tablet tidak bisa bergabung."',
+        options: ['Salah, smartphone dan tablet juga dapat terhubung ke jaringan', 'Benar, hanya komputer kabel yang bisa masuk jaringan'],
+        answer: 0,
+        explanation: 'Salah. Berbagai perangkat digital seperti PC, laptop, smartphone, tablet, hingga printer dapat terhubung dalam jaringan.'
       },
       {
-        topic: 'Jaringan Komputer',
-        type: 'Soal Situasi (HOTS)',
-        q: 'Rina ingin mengirim file presentasi tugas kelompok berukuran besar kepada Budi yang duduk di meja seberang laboratorium komputer. Cara paling efisien menggunakan jaringan komputer adalah...',
-        options: [
-          'Mengirim file langsung melalui jaringan lokal sekolah atau folder berbagi',
-          'Mencetak semua halaman lalu menyuruh Budi mengetiknya ulang dari awal',
-          'Memindahkan monitor komputer Rina ke meja Budi',
-          'Mematikan router Wi-Fi di laboratorium komputer'
-        ],
-        ans: 0,
-        explain: 'Jaringan komputer memungkinkan pengiriman file digital antarperangkat secara cepat dan praktis.'
+        type: 'Studi Kasus',
+        q: 'Bu Rina ingin membagikan materi presentasi berukuran 50 MB kepada 28 murid di kelas secara bersamaan melalui jaringan sekolah. Manfaat jaringan yang dirasakan adalah...',
+        options: ['Mempercepat distribusi informasi dan file secara serentak', 'Menambah kapasitas baterai laptop murid', 'Mengubah file presentasi menjadi suara', 'Menghapus kebutuhan monitor komputer'],
+        answer: 0,
+        explanation: 'Jaringan memungkinkan satu file dibagikan dengan cepat kepada banyak pengguna sekaligus tanpa menyalin manual satu per satu.'
       },
       {
-        topic: 'Jaringan Komputer',
-        type: 'Tebak Fungsi Perangkat',
-        q: 'Perangkat penghubung yang bertugas mengatur lalu lintas data agar banyak komputer dan laptop dapat saling terhubung disebut...',
-        options: ['Router / Switch', 'Mouse', 'Speaker', 'Scanner'],
-        ans: 0,
-        explain: 'Router atau Switch berfungsi sebagai pusat penghubung komunikasi data antarperangkat dalam jaringan.'
-      },
-      {
-        topic: 'Jaringan Komputer',
         type: 'Pilihan Ganda',
-        q: 'Teknologi jaringan tanpa kabel yang sering digunakan di rumah atau sekolah untuk menghubungkan laptop dan smartphone ke internet disebut...',
-        options: ['Wi-Fi', 'Flashdisk', 'Proyektor', 'Keyboard'],
-        ans: 0,
-        explain: 'Wi-Fi (Wireless Fidelity) menggunakan gelombang radio untuk menghubungkan perangkat ke jaringan tanpa kabel.'
+        q: 'Manakah kegiatan berikut yang menunjukkan pemanfaatan berbagi sumber daya perangkat keras (hardware sharing) dalam jaringan?',
+        options: ['Lima komputer di ruang tata usaha mencetak surat ke satu printer bersama', 'Siswa mengetik cerita di aplikasi pengolah kata offline', 'Guru mengganti wallpaper layar komputer', 'Murid menyimpan foto di kartu memori kamera'],
+        answer: 0,
+        explanation: 'Menggunakan satu printer secara bersama-sama oleh beberapa komputer adalah contoh berbagi sumber daya perangkat keras.'
       },
       {
-        topic: 'Jaringan Komputer',
         type: 'Pilihan Ganda',
-        q: 'Kabel jaringan yang umum digunakan untuk menghubungkan komputer ke Switch di laboratorium sekolah adalah...',
-        options: ['Kabel UTP / LAN (RJ-45)', 'Kabel listrik setrika', 'Kabel antena televisi tabung', 'Tali tambang plastik'],
-        ans: 0,
-        explain: 'Kabel UTP (Unshielded Twisted Pair) dengan konektor RJ-45 adalah kabel standar jaringan lokal (LAN).'
+        q: 'Saat murid di rumah mengikuti kelas daring melalui aplikasi konferensi video bersama guru, jaringan komputer berfungsi sebagai sarana...',
+        options: ['Komunikasi jarak jauh dan pembelajaran daring', 'Perbaikan perangkat keras otomatis', 'Pencetakan buku paket fisik', 'Penyimpanan listrik cadangan'],
+        answer: 0,
+        explanation: 'Jaringan komputer dan internet mempermudah komunikasi audio-video serta pembelajaran jarak jauh.'
       },
       {
-        topic: 'Jaringan Komputer',
-        type: 'Soal Situasi (HOTS)',
-        q: 'Saat sedang mencoba mengirim tugas melalui jaringan sekolah, komputer Dani tiba-tiba tidak bisa terhubung ke server guru, sedangkan komputer teman di sebelahnya bisa. Langkah pemeriksaan pertama yang paling tepat dilakukan Dani adalah...',
-        options: [
-          'Memeriksa apakah kabel jaringan terpasang rapat atau ikon Wi-Fi sudah aktif',
-          'Mengganti layar monitor dengan monitor milik teman',
-          'Menghapus seluruh file tugas yang sudah dibuat',
-          'Mematikan listrik seluruh ruang laboratorium'
-        ],
-        ans: 0,
-        explain: 'Memeriksa sambungan fisik kabel LAN atau status koneksi Wi-Fi adalah langkah pemecahan masalah (troubleshooting) jaringan paling dasar.'
+        type: 'Analisis Masalah',
+        q: 'Di ruang komputer sekolah, 15 PC sudah terhubung ke switch, tetapi tidak satu pun yang bisa membuka situs web edukasi. Kemungkinan penyebab utamanya adalah...',
+        options: ['Router sekolah belum tersambung ke layanan internet', 'Mouse pada komputer belum diganti', 'Layar monitor terlalu redup', 'Kertas di dalam printer habis'],
+        answer: 0,
+        explanation: 'Perangkat dalam LAN bisa saling terhubung lokal, namun untuk mengakses situs web dibutuhkan koneksi router ke internet.'
       },
       {
-        topic: 'Jaringan Komputer',
-        type: 'Pilihan Ganda',
-        q: 'Manakah kegiatan sehari-hari berikut yang memanfaatkan jaringan komputer?',
-        options: [
-          'Mengikuti kelas daring melalui aplikasi video conference bersama guru',
-          'Menulis catatan pelajaran di buku tulis menggunakan pensil',
-          'Menggambar pemandangan di kertas karton dengan krayon',
-          'Membaca buku cerita cetak di perpustakaan sekolah'
-        ],
-        ans: 0,
-        explain: 'Pembelajaran daring memerlukan jaringan internet agar suara, video, dan materi dapat dikirim antarperangkat.'
-      },
-      {
-        topic: 'Jaringan Komputer',
         type: 'Benar / Salah',
-        q: 'BENAR atau SALAH: Salah satu manfaat jaringan komputer adalah memudahkan kolaborasi, misalnya beberapa siswa mengerjakan dokumen bersama secara daring.',
-        options: ['Benar', 'Salah'],
-        ans: 0,
-        explain: 'BENAR. Jaringan komputer dan internet memungkinkan kerja sama (kolaborasi) secara langsung meskipun berada di tempat berbeda.'
+        q: 'PERNYATAAN: "Berbagi file melalui jaringan lokal lebih praktis dibandingkan harus memindahkan flashdisk dari satu komputer ke komputer lain secara bergantian."',
+        options: ['Benar, lebih cepat dan praktis', 'Salah, menyalin lewat jaringan lebih lambat daripada berjalan kaki'],
+        answer: 0,
+        explanation: 'Benar. Pertukaran data melalui jaringan menghemat waktu dan tenaga karena dikirim secara elektronik.'
       },
       {
-        topic: 'Jaringan Komputer',
         type: 'Pilihan Ganda',
-        q: 'Perangkat keras yang berfungsi mengubah sinyal internet dari penyedia layanan (ISP) agar dapat dibagikan ke perangkat di rumah adalah...',
-        options: ['Modem / Router Wi-Fi', 'Printer Inkjet', 'Webcam', 'Microphone'],
-        ans: 0,
-        explain: 'Modem dan Router menghubungkan jaringan lokal di rumah dengan jaringan internet global.'
+        q: 'Teknologi nirkabel yang paling sering digunakan smartphone dan laptop di sekolah atau rumah untuk terhubung ke jaringan tanpa kabel adalah...',
+        options: ['Wi-Fi', 'Kabel HDMI', 'Flashdisk USB', 'DVD-ROM'],
+        answer: 0,
+        explanation: 'Wi-Fi memungkinkan perangkat terhubung ke jaringan lokal dan internet menggunakan gelombang radio tanpa kabel.'
       },
       {
-        topic: 'Jaringan Komputer',
         type: 'Pilihan Ganda',
-        q: 'Apa yang terjadi jika dua komputer tidak terhubung dalam jaringan maupun media penyimpanan apa pun?',
-        options: [
-          'Kedua komputer tidak dapat saling bertukar data atau berbagi printer secara langsung',
-          'Kedua komputer tetap bisa mengirim email tanpa koneksi apa pun',
-          'Layar kedua komputer otomatis menampilkan gambar yang sama',
-          'Kedua komputer tidak bisa menyala sama sekali'
-        ],
-        ans: 0,
-        explain: 'Tanpa koneksi jaringan, setiap perangkat berdiri sendiri (stand-alone) dan tidak dapat berkomunikasi langsung.'
+        q: 'Ketika sebuah file dikirim dari Komputer A menuju Laptop B dalam jaringan, perangkat bertindak sebagai...',
+        options: ['Komputer A sebagai pengirim (sender) dan Laptop B sebagai penerima (receiver)', 'Keduanya hanya sebagai pencetak dokumen', 'Laptop B sebagai sumber listrik Komputer A', 'Komputer A sebagai layar monitor Laptop B'],
+        answer: 0,
+        explanation: 'Dalam komunikasi jaringan selalu terdapat pihak pengirim data (sender) dan pihak penerima data (receiver).'
       },
       {
-        topic: 'Jaringan Komputer',
-        type: 'Soal Situasi (HOTS)',
-        q: 'Perpustakaan SD Merdeka ingin agar katalog daftar buku dapat dicari dari 5 komputer pencarian siswa sekaligus tanpa menyimpan file daftar buku secara terpisah di tiap komputer. Solusi terbaiknya adalah...',
-        options: [
-          'Menyimpan database buku di satu komputer pusat (server) yang terhubung ke kelima komputer melalui jaringan',
-          'Mencetak ribuan lembar daftar buku untuk setiap siswa setiap hari',
-          'Menyuruh siswa menghafal seluruh kode buku di rak',
-          'Memutus semua kabel jaringan di perpustakaan'
-        ],
-        ans: 0,
-        explain: 'Penyimpanan terpusat melalui jaringan membuat data selalu seragam dan mudah diakses banyak perangkat sekaligus.'
+        type: 'Tebak Fungsi',
+        q: 'Ikon batang sinyal melengkung (📶) pada pojok layar laptop atau smartphone menandakan bahwa perangkat...',
+        options: ['Terhubung dengan jaringan nirkabel (Wi-Fi)', 'Sedang dalam mode pesawat tanpa sinyal', 'Kehabisan ruang penyimpanan', 'Sedang mencetak dokumen'],
+        answer: 0,
+        explanation: 'Ikon gelombang Wi-Fi menunjukkan status sambungan perangkat ke titik akses jaringan nirkabel.'
+      },
+      {
+        type: 'Studi Kasus',
+        q: 'Kelompok belajar Sari mengerjakan poster digital bersama-sama dari rumah masing-masing melalui dokumen daring. Hal ini menunjukkan bahwa jaringan komputer mendukung nilai...',
+        options: ['Kolaborasi dan kerja sama tim', 'Persaingan tidak sehat', 'Ketergantungan pada mesin cetak', 'Pengisolasian informasi'],
+        answer: 0,
+        explanation: 'Jaringan komputer memudahkan kolaborasi antarindividu meskipun berada di tempat yang berbeda.'
+      },
+      {
+        type: 'Pilihan Ganda',
+        q: 'Berikut ini yang BUKAN merupakan manfaat jaringan komputer di lingkungan sekolah adalah...',
+        options: ['Memperbaiki layar monitor yang pecah secara otomatis', 'Memudahkan pengiriman tugas siswa ke guru', 'Menghemat biaya pembelian printer', 'Mempermudah akses sumber belajar di internet'],
+        answer: 0,
+        explanation: 'Jaringan komputer membantu pertukaran data dan komunikasi, bukan memperbaiki kerusakan fisik perangkat.'
       },
 
-      // --- BAGIAN B: JENIS-JENIS JARINGAN LAN, MAN, WAN (13 SOAL) ---
+      // --- BAGIAN B: JENIS-JENIS JARINGAN LAN, MAN, WAN (12 SOAL BARU) ---
       {
-        topic: 'Jenis Jaringan',
         type: 'Pilihan Ganda',
-        q: 'Komputer-komputer di dalam laboratorium sekolah yang saling terhubung merupakan contoh jaringan...',
-        options: ['LAN (Local Area Network)', 'MAN (Metropolitan Area Network)', 'WAN (Wide Area Network)', 'Jaringan Antarbenua'],
-        ans: 0,
-        explain: 'LAN mencakup area geografis kecil seperti rumah, kelas, atau gedung sekolah.'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Pilihan Ganda',
-        q: 'Jaringan komputer yang mencakup wilayah satu kota atau kawasan metropolitan disebut...',
-        options: ['MAN (Metropolitan Area Network)', 'LAN (Local Area Network)', 'WAN (Wide Area Network)', 'USB Network'],
-        ans: 0,
-        explain: 'MAN menghubungkan beberapa jaringan LAN dalam satu wilayah kota.'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Pilihan Ganda',
-        q: 'Jaringan dengan cakupan wilayah geografis sangat luas, seperti antarnegara dan antarbenua, disebut...',
-        options: ['WAN (Wide Area Network)', 'LAN (Local Area Network)', 'MAN (Metropolitan Area Network)', 'Jaringan Ruangan'],
-        ans: 0,
-        explain: 'WAN memiliki jangkauan sangat luas melintasi batas kota, negara, hingga benua.'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Soal Situasi (HOTS)',
-        q: 'Dinas Pendidikan Kota Surabaya ingin menghubungkan server pusat dengan 50 SD Negeri yang tersebar di seluruh wilayah Kota Surabaya. Jenis jaringan yang paling sesuai adalah...',
-        options: ['MAN', 'LAN', 'Kabel Printer', 'Bluetooth'],
-        ans: 0,
-        explain: 'Karena menghubungkan banyak gedung sekolah di dalam satu wilayah kota, jenis yang tepat adalah MAN.'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Benar / Salah',
-        q: 'BENAR atau SALAH: Jaringan internet global yang menghubungkan komputer di Indonesia dengan komputer di Jepang termasuk contoh WAN.',
-        options: ['Benar', 'Salah'],
-        ans: 0,
-        explain: 'BENAR. Internet merupakan contoh jaringan WAN terbesar yang menghubungkan perangkat di seluruh dunia.'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Pilihan Ganda',
-        q: 'Urutan jenis jaringan komputer dari cakupan wilayah yang PALING KECIL hingga PALING LUAS adalah...',
+        q: 'Urutan jenis jaringan komputer dari yang paling sempit cakupannya hingga yang paling luas adalah...',
         options: ['LAN → MAN → WAN', 'WAN → MAN → LAN', 'MAN → LAN → WAN', 'LAN → WAN → MAN'],
-        ans: 0,
-        explain: 'LAN mencakup area gedung/rumah (terkecil), MAN mencakup area kota (menengah), dan WAN mencakup antarnegara/dunia (terluas).'
+        answer: 0,
+        explanation: 'LAN mencakup area gedung/rumah, MAN mencakup satu kota, dan WAN mencakup antarnegara hingga seluruh dunia.'
       },
       {
-        topic: 'Jenis Jaringan',
+        type: 'Studi Kasus',
+        q: 'Seluruh komputer kasir, komputer gudang, dan mesin absensi di dalam satu gedung minimarket saling terhubung. Jaringan ini termasuk jenis...',
+        options: ['LAN (Local Area Network)', 'MAN (Metropolitan Area Network)', 'WAN (Wide Area Network)', 'SAN (Satellite Area Network)'],
+        answer: 0,
+        explanation: 'Cakupan di dalam satu gedung toko termasuk area lokal kecil sehingga disebut LAN.'
+      },
+      {
+        type: 'Studi Kasus',
+        q: 'Pemerintah Kota Surabaya menghubungkan sistem layanan kependudukan dari seluruh kantor kecamatan di wilayah Surabaya ke pusat data kota. Jaringan ini disebut...',
+        options: ['MAN (Metropolitan Area Network)', 'LAN (Local Area Network)', 'PAN (Personal Area Network)', 'USB Network'],
+        answer: 0,
+        explanation: 'Jaringan yang menghubungkan banyak lokasi di dalam satu wilayah kota adalah MAN.'
+      },
+      {
         type: 'Pilihan Ganda',
-        q: 'Kepanjangan dari singkatan LAN dalam materi jaringan komputer adalah...',
-        options: ['Local Area Network', 'Large Area Network', 'Long Access Network', 'Light Area Node'],
-        ans: 0,
-        explain: 'LAN adalah singkatan dari Local Area Network (Jaringan Area Lokal).'
+        q: 'Jaringan WAN (Wide Area Network) menghubungkan berbagai negara yang dipisahkan oleh samudra luas dengan memanfaatkan...',
+        options: ['Kabel serat optik bawah laut dan satelit komunikasi', 'Kabel printer sepanjang 2 meter', 'Sinyal inframerah remote TV', 'Kabel audio pengeras suara'],
+        answer: 0,
+        explanation: 'WAN berskala global menggunakan infrastruktur kabel bawah laut berkecepatan tinggi dan satelit.'
       },
       {
-        topic: 'Jenis Jaringan',
-        type: 'Pilihan Ganda',
-        q: 'Kepanjangan dari singkatan WAN adalah...',
-        options: ['Wide Area Network', 'Wireless All Network', 'Window Area Node', 'World Access Number'],
-        ans: 0,
-        explain: 'WAN adalah singkatan dari Wide Area Network (Jaringan Area Luas).'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Soal Situasi (HOTS)',
-        q: 'Keluarga Pak Ahmad memasang satu router Wi-Fi di ruang tamu untuk menghubungkan 2 laptop, 3 smartphone, dan 1 smart TV di dalam rumah mereka. Jaringan tersebut termasuk jenis...',
-        options: ['LAN', 'MAN', 'WAN', 'Jaringan Satelit Antarbenua'],
-        ans: 0,
-        explain: 'Jaringan di dalam satu rumah memiliki cakupan wilayah kecil sehingga tergolong LAN.'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Pilihan Ganda',
-        q: 'Media apa yang sering digunakan jaringan WAN untuk menghubungkan benua yang terpisah oleh lautan luas?',
-        options: ['Kabel serat optik bawah laut dan satelit komunikasi', 'Kabel LAN sepanjang 2 meter', 'Sinar senter biasa', 'Kabel penghubung mouse'],
-        ans: 0,
-        explain: 'WAN menggunakan teknologi jarak jauh seperti kabel serat optik bawah laut (submarine cable) dan satelit.'
-      },
-      {
-        topic: 'Jenis Jaringan',
-        type: 'Soal Situasi (HOTS)',
-        q: 'Sebuah perusahaan memiliki kantor pusat di Jakarta dan kantor cabang di London (Inggris) serta Tokyo (Jepang). Agar seluruh kantor cabang dapat bertukar data setiap hari, perusahaan tersebut membutuhkan jaringan...',
-        options: ['WAN', 'LAN', 'Kabel UTP antarruangan', 'Bluetooth'],
-        ans: 0,
-        explain: 'Karena menghubungkan lokasi yang berada di negara dan benua berbeda, jenis jaringan yang digunakan adalah WAN.'
-      },
-      {
-        topic: 'Jenis Jaringan',
         type: 'Benar / Salah',
-        q: 'BENAR atau SALAH: Jaringan MAN pada dasarnya terbentuk dari gabungan beberapa jaringan LAN yang saling terhubung di dalam satu wilayah kota.',
-        options: ['Benar', 'Salah'],
-        ans: 0,
-        explain: 'BENAR. Beberapa jaringan LAN di gedung-gedung perkantoran atau sekolah dalam satu kota dihubungkan membentuk MAN.'
+        q: 'PERNYATAAN: "Jaringan MAN terbentuk dari gabungan beberapa jaringan LAN yang saling dihubungkan di dalam satu wilayah kota."',
+        options: ['Benar, MAN menghubungkan beberapa LAN dalam satu kota', 'Salah, MAN hanya menghubungkan dua komputer di satu meja'],
+        answer: 0,
+        explanation: 'Benar. Metropolitan Area Network (MAN) menggabungkan beberapa jaringan lokal (LAN) di dalam satu kawasan kota.'
       },
       {
-        topic: 'Jenis Jaringan',
+        type: 'Mencocokkan',
+        q: 'Pasangan contoh penerapan jaringan dan jenisnya yang PALING TEPAT adalah...',
+        options: ['Jaringan Wi-Fi ruang kelas = LAN', 'Koneksi internet antarbenua = LAN', 'Jaringan satu rumah tinggal = WAN', 'Jaringan antarkantor dalam satu kota = LAN'],
+        answer: 0,
+        explanation: 'Wi-Fi di dalam satu ruang kelas memiliki cakupan area kecil sehingga merupakan contoh LAN.'
+      },
+      {
+        type: 'Studi Kasus',
+        q: 'Raka bermain gim edukasi daring bersama teman dari Bandung, Makassar, hingga seorang pelajar di Jepang. Koneksi lintas negara ini berjalan di atas jaringan...',
+        options: ['WAN (Wide Area Network)', 'LAN (Local Area Network)', 'MAN (Metropolitan Area Network)', 'Jaringan lokal ruang tamu'],
+        answer: 0,
+        explanation: 'Komunikasi data antarkota jauh dan antarnegara merupakan cakupan jaringan WAN.'
+      },
+      {
         type: 'Pilihan Ganda',
-        q: 'Manakah pernyataan yang paling tepat membedakan antara LAN dan WAN?',
-        options: [
-          'LAN mencakup area terbatas seperti satu gedung, sedangkan WAN mencakup wilayah sangat luas antarnegara',
-          'LAN hanya bisa dipakai di luar angkasa, sedangkan WAN hanya di kamar tidur',
-          'LAN tidak menggunakan perangkat komputer, sedangkan WAN hanya memakai printer',
-          'LAN lebih luas jangkauannya daripada seluruh benua di bumi'
-        ],
-        ans: 0,
-        explain: 'Perbedaan utama LAN, MAN, dan WAN terletak pada luas cakupan geografisnya.'
+        q: 'Perbedaan utama yang membedakan jaringan LAN, MAN, dan WAN adalah...',
+        options: ['Luas wilayah geografis yang dijangkau jaringan', 'Warna kabel yang digunakan pada komputer', 'Merek layar monitor yang dipakai siswa', 'Jumlah tombol pada papan ketik (keyboard)'],
+        answer: 0,
+        explanation: 'Klasifikasi LAN, MAN, dan WAN dibedakan berdasarkan luas jangkauan wilayah geografisnya.'
+      },
+      {
+        type: 'Benar / Salah',
+        q: 'PERNYATAAN: "Internet yang menghubungkan miliaran komputer dan ponsel di seluruh dunia merupakan contoh jaringan WAN terbesar."',
+        options: ['Benar, internet mencakup seluruh dunia (WAN)', 'Salah, internet hanya mencakup satu gedung sekolah (LAN)'],
+        answer: 0,
+        explanation: 'Benar. Internet menghubungkan jaringan di seluruh negara dan benua sehingga merupakan bentuk WAN global.'
+      },
+      {
+        type: 'Analisis Masalah',
+        q: 'Sebuah yayasan pendidikan memiliki 4 sekolah cabang yang tersebar di wilayah Kota Bandung dan ingin menyatukan sistem perpustakaan digital keempat sekolah tersebut. Jenis jaringan yang sesuai adalah...',
+        options: ['MAN (Metropolitan Area Network)', 'LAN tunggal tanpa koneksi luar', 'Jaringan kabel USB antar-PC', 'Jaringan Bluetooth jarak dekat'],
+        answer: 0,
+        explanation: 'Menghubungkan beberapa gedung sekolah di dalam satu wilayah kota yang sama adalah fungsi jaringan MAN.'
+      },
+      {
+        type: 'Pilihan Ganda',
+        q: 'Cakupan jarak jaringan LAN umumnya berkisar pada area...',
+        options: ['Satu ruangan, rumah, atau satu gedung sekolah', 'Seluruh negara di benua Asia', 'Antarpulau di seluruh Indonesia', 'Antarplanet di tata surya'],
+        answer: 0,
+        explanation: 'LAN dirancang untuk area lokal terbatas seperti rumah, kantor, atau gedung sekolah.'
+      },
+      {
+        type: 'Pilihan Ganda',
+        q: 'Jika dua jaringan MAN di dua negara berbeda dihubungkan melalui satelit, maka terbentuklah jaringan berskala...',
+        options: ['WAN (Wide Area Network)', 'LAN (Local Area Network)', 'Jaringan lokal ruang kelas', 'Jaringan kabel printer'],
+        answer: 0,
+        explanation: 'Gabungan jaringan antarkota dan antarnegara membentuk Wide Area Network (WAN).'
       },
 
-      // --- BAGIAN C: KODE RAHASIA, CAESAR CIPHER & KEAMANAN INFORMASI (12 SOAL) ---
+      // --- BAGIAN C: KODE RAHASIA MULTI-RUMUS & KEAMANAN INFORMASI (13 SOAL BARU) ---
       {
-        topic: 'Kode Rahasia',
         type: 'Pilihan Ganda',
-        q: 'Mengapa informasi penting terkadang perlu diubah menjadi kode rahasia sebelum dikirim melalui jaringan?',
-        options: [
-          'Agar isi pesan terlindungi dan tidak mudah dibaca oleh orang yang tidak berhak',
-          'Agar ukuran layar komputer menjadi lebih besar',
-          'Supaya komputer tidak membutuhkan koneksi internet',
-          'Agar huruf-huruf di keyboard berubah warna'
-        ],
-        ans: 0,
-        explain: 'Penyandian menjaga kerahasiaan pesan agar tidak disalahgunakan oleh pihak yang tidak berwenang.'
+        q: 'Tujuan utama mengubah pesan asli menjadi kode rahasia sebelum dikirim melalui jaringan adalah...',
+        options: ['Melindungi kerahasiaan isi pesan agar tidak dibaca pihak yang tidak berhak', 'Membuat ukuran tulisan menjadi lebih besar di layar', 'Mengubah warna huruf menjadi pelangi', 'Menghapus pesan secara permanen sebelum terkirim'],
+        answer: 0,
+        explanation: 'Penyandian (enkripsi) menjaga agar informasi sensitif hanya bisa dipahami oleh penerima yang mengetahui kunci/rumusnya.'
       },
       {
-        topic: 'Kode Rahasia',
-        type: 'Praktik Sandi',
-        q: 'Jika aturan kode adalah menggeser 1 huruf maju dalam alfabet (A→B, B→C), huruf H akan berubah menjadi huruf...',
-        options: ['I', 'G', 'J', 'K'],
-        ans: 0,
-        explain: 'Setelah huruf H dalam alfabet adalah huruf I.'
+        type: 'Praktik Sandi (+2)',
+        q: 'RUMUS GESER +2 HURUF MAJU (A→C, B→D): Jika pesan aslinya adalah "AMAN", maka bentuk kode rahasianya adalah...',
+        options: ['COCP', 'BNBO', 'ZLZL', 'NAMA'],
+        answer: 0,
+        explanation: 'Geser +2 maju: A→C, M→O, A→C, N→P. Jadi "AMAN" menjadi "COCP".'
       },
       {
-        topic: 'Kode Rahasia',
-        type: 'Praktik Sandi',
-        q: 'Diketahui kode rahasia "IBMP" dibuat dengan aturan pergeseran +1 huruf maju. Apakah pesan aslinya?',
-        options: ['HALO', 'KAMI', 'BOLA', 'JARI'],
-        ans: 0,
-        explain: 'Geser mundur 1 huruf: I→H, B→A, M→L, P→O menghasilkan kata HALO.'
+        type: 'Praktik Sandi (+2)',
+        q: 'RUMUS GESER +2 HURUF MAJU: Kamu menerima kode rahasia "FCVC" (hasil geser +2 maju). Apakah pesan aslinya?',
+        options: ['DATA', 'EBUB', 'GEDE', 'FATA'],
+        answer: 0,
+        explanation: 'Untuk membaca kode geser +2 maju, geser 2 huruf mundur: F(-2)=D, C(-2)=A, V(-2)=T, C(-2)=A → "DATA".'
       },
       {
-        topic: 'Kode Rahasia',
-        type: 'Praktik Sandi',
-        q: 'Ubahlah kata "DATA" menjadi kode rahasia menggunakan aturan geser +1 huruf maju!',
-        options: ['EBUB', 'CZSZ', 'FCTC', 'DBUA'],
-        ans: 0,
-        explain: 'D→E, A→B, T→U, A→B sehingga menjadi EBUB.'
+        type: 'Praktik Sandi (-2)',
+        q: 'RUMUS GESER -2 HURUF MUNDUR (C→A, D→B): Jika kata "KODE" disandikan dengan menggeser 2 huruf mundur, hasilnya adalah...',
+        options: ['IMBC', 'MQFG', 'LPED', 'EDOK'],
+        answer: 0,
+        explanation: 'Geser -2 mundur: K(-2)=I, O(-2)=M, D(-2)=B, E(-2)=C → "IMBC".'
       },
       {
-        topic: 'Kode Rahasia',
-        type: 'Pemecahan Masalah (HOTS)',
-        q: 'Mengapa kita perlu memahami keamanan informasi sejak sekolah dasar?',
-        options: [
-          'Agar dapat melindungi data pribadi seperti kata sandi dan tidak mudah tertipu di dunia digital',
-          'Agar bisa menebak kata sandi teman tanpa izin',
-          'Supaya boleh membagikan alamat rumah dan nomor telepon kepada orang asing',
-          'Karena kode sederhana sudah cukup menggantikan seluruh keamanan bank'
-        ],
-        ans: 0,
-        explain: 'Kesadaran keamanan informasi membantu murid melindungi privasi dan berinternet secara aman.'
+        type: 'Praktik Sandi (-2)',
+        q: 'RUMUS GESER -2 HURUF MUNDUR: Kode rahasia "GJRK" dibuat dengan rumus geser -2 mundur. Apa pesan aslinya?',
+        options: ['ILMU', 'EHPQ', 'Jaringan', 'KODE'],
+        answer: 0,
+        explanation: 'Geser +2 maju untuk membuka sandi -2 mundur: G(+2)=I, J(+2)=L, R(+2)=M, K(+2)=U → "ILMU".'
       },
       {
-        topic: 'Kode Rahasia',
+        type: 'Praktik Sandi (+3)',
+        q: 'RUMUS GESER +3 HURUF MAJU (A→D, B→E): Jika kata "KUNCI" disandikan dengan geser +3 maju, hasilnya adalah...',
+        options: ['NXQFL', 'LVODJ', 'MTPDK', 'ICNUK'],
+        answer: 0,
+        explanation: 'Geser +3 maju: K→N, U→X, N→Q, C→F, I→L → "NXQFL".'
+      },
+      {
+        type: 'Praktik Sandi Cermin',
+        q: 'RUMUS SANDI CERMIN (HURUF DIBALIK DARI BELAKANG): Pesan berkode "TENRETNI" jika dibaca sesuai aturan sandi cermin adalah...',
+        options: ['INTERNET', 'JARINGAN', 'KOMPUTER', 'SANDIWEB'],
+        answer: 0,
+        explanation: 'Susunan huruf TENRETNI jika dibaca terbalik dari kanan ke kiri menjadi INTERNET.'
+      },
+      {
+        type: 'Praktik Sandi Angka',
+        q: 'RUMUS KODE ANGKA ALFABET (A=1, B=2, C=3, ..., Z=26): Kode angka "16-5-19-1-14" memiliki arti kata...',
+        options: ['PESAN', 'SANDI', 'KUNCI', 'KABEL'],
+        answer: 0,
+        explanation: 'Huruf ke-16=P, ke-5=E, ke-19=S, ke-1=A, ke-14=N → "PESAN".'
+      },
+      {
         type: 'Pilihan Ganda',
-        q: 'Dalam aturan pergeseran melingkar +1 huruf maju pada alfabet A–Z, huruf terakhir yaitu Z akan berubah menjadi huruf...',
-        options: ['A', 'Y', 'X', 'B'],
-        ans: 0,
-        explain: 'Dalam Caesar Cipher melingkar, setelah huruf terakhir Z kembali lagi ke huruf pertama yaitu A.'
+        q: 'Proses mengubah kembali pesan berkode rahasia menjadi pesan asli yang dapat dibaca disebut...',
+        options: ['Dekripsi', 'Enkripsi', 'Instalasi', 'Kompresi'],
+        answer: 0,
+        explanation: 'Enkripsi adalah proses menyandikan pesan, sedangkan dekripsi adalah proses membuka kembali sandi menjadi pesan asli.'
       },
       {
-        topic: 'Kode Rahasia',
-        type: 'Praktik Sandi',
-        q: 'Ubahlah kata "KODE" menjadi pesan berkode menggunakan aturan geser +1 huruf maju!',
-        options: ['LPEF', 'JNCD', 'MQFG', 'KPEF'],
-        ans: 0,
-        explain: 'K→L, O→P, D→E, E→F sehingga menghasilkan LPEF.'
-      },
-      {
-        topic: 'Kode Rahasia',
-        type: 'Praktik Sandi',
-        q: 'Detektif NETO menerima pesan sandi "BNBO" yang dibuat dengan aturan geser +1 huruf maju. Apa arti pesan rahasia tersebut?',
-        options: ['AMAN', 'AWAN', 'AKAN', 'ANAK'],
-        ans: 0,
-        explain: 'Geser mundur 1 huruf: B→A, N→M, B→A, N→M menghasilkan kata AMAN.'
-      },
-      {
-        topic: 'Kode Rahasia',
-        type: 'Pilihan Ganda',
-        q: 'Proses mengubah pesan asli yang mudah dibaca menjadi kode rahasia disebut...',
-        options: ['Enkripsi (Penyandian)', 'Dekripsi', 'Pencetakan', 'Penghapusan'],
-        ans: 0,
-        explain: 'Enkripsi adalah proses menyandikan pesan asli (plaintext) menjadi teks sandi (ciphertext).'
-      },
-      {
-        topic: 'Kode Rahasia',
-        type: 'Pilihan Ganda',
-        q: 'Proses membaca atau mengembalikan kode rahasia menjadi pesan asli yang dapat dipahami kembali disebut...',
-        options: ['Dekripsi', 'Enkripsi', 'Kompresi', 'Instalasi'],
-        ans: 0,
-        explain: 'Dekripsi adalah kebalikan dari enkripsi, yaitu menerjemahkan sandi kembali menjadi pesan semula.'
-      },
-      {
-        topic: 'Kode Rahasia',
-        type: 'Soal Situasi (HOTS)',
-        q: 'Siti diminta membuat kata sandi (password) untuk akun belajarnya di sekolah. Manakah contoh kata sandi yang PALING aman dan baik untuk dipilih Siti?',
-        options: [
-          'BintangBiru#2026',
-          '123456',
-          'siti',
-          'password'
-        ],
-        ans: 0,
-        explain: 'Kata sandi yang kuat menggabungkan huruf besar, huruf kecil, angka, dan simbol, serta tidak mudah ditebak.'
-      },
-      {
-        topic: 'Kode Rahasia',
         type: 'Benar / Salah',
-        q: 'BENAR atau SALAH: Kode pergeseran huruf sederhana (+1 huruf) sangat bagus untuk melatih logika penyandian, namun dalam keamanan internet nyata diperlukan sistem sandi modern yang jauh lebih kompleks.',
-        options: ['Benar', 'Salah'],
-        ans: 0,
-        explain: 'BENAR. Sandi Caesar +1 mudah dipecahkan oleh komputer modern sehingga hanya digunakan sebagai dasar pembelajaran logika kriptografi.'
+        q: 'PERNYATAAN: "Jika pengirim dan penerima memakai rumus kode yang berbeda saat membuka pesan, maka pesan asli tidak akan terbaca dengan benar."',
+        options: ['Benar, pengirim dan penerima harus menyepakati aturan/kunci yang sama', 'Salah, rumus apa pun pasti menghasilkan kata yang sama'],
+        answer: 0,
+        explanation: 'Benar. Kunci atau aturan dekripsi harus sesuai dengan aturan enkripsi yang digunakan pengirim.'
+      },
+      {
+        type: 'Studi Kasus Keamanan',
+        q: 'Dina menerima pesan dari nomor asing yang meminta kode rahasia (OTP) yang baru saja masuk ke SMS-nya. Sikap Detektif Digital yang paling aman adalah...',
+        options: ['Menolak dan tidak pernah membagikan kode OTP kepada siapa pun', 'Segera mengirimkan kode OTP tersebut agar dianggap ramah', 'Menyebarkan kode OTP di grup media sosial', 'Menuliskan kata sandi akun di kolom komentar publik'],
+        answer: 0,
+        explanation: 'Kode OTP bersifat sangat rahasia dan pribadi. Membagikannya kepada orang lain dapat membahayakan keamanan akun.'
+      },
+      {
+        type: 'Analisis Masalah',
+        q: 'Dalam aturan pergeseran alfabet maju (A→B, B→C, ..., Y→Z), jika huruf "Z" digeser 1 langkah maju, maka huruf tersebut kembali ke...',
+        options: ['Huruf A', 'Huruf X', 'Angka 0', 'Huruf M'],
+        answer: 0,
+        explanation: 'Alfabet dalam sandi geser bersifat melingkar (siklis), sehingga setelah huruf terakhir Z akan kembali ke huruf awal A.'
+      },
+      {
+        type: 'Benar / Salah',
+        q: 'PERNYATAAN: "Kode geser 1 huruf sederhana sudah cukup kuat untuk melindungi sistem perbankan dunia dan tidak perlu teknologi enkripsi modern."',
+        options: ['Salah, kode geser sederhana hanya untuk latihan dasar dan mudah ditebak', 'Benar, bank dunia hanya memakai geser 1 huruf'],
+        answer: 0,
+        explanation: 'Salah. Sandi geser sederhana mudah dipecahkan; sistem keamanan internet nyata menggunakan enkripsi modern yang jauh lebih kompleks.'
       }
     ];
 
-    // Algoritma Fisher-Yates Shuffle untuk mengacak soal & pilihan jawaban
+    // Fungsi Pengacakan Fisher-Yates (Untuk mengacak soal & pilihan jawaban)
     function shuffleArray(array) {
-      const arr = array.slice();
-      for (let i = arr.length - 1; i > 0; i--) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+        [copy[i], copy[j]] = [copy[j], copy[i]];
       }
-      return arr;
+      return copy;
     }
 
     function buildShuffledQuizSet(mode = 'all') {
-      const shuffledPool = shuffleArray(QUIZ_QUESTIONS);
-      const selectedPool = mode === 'quick' ? shuffledPool.slice(0, 20) : shuffledPool;
+      const shuffledBank = shuffleArray(QUIZ_QUESTIONS);
+      const selected = mode === 'quick' ? shuffledBank.slice(0, 20) : shuffledBank;
 
-      return selectedPool.map(item => {
+      return selected.map(item => {
         const indexedOptions = item.options.map((text, idx) => ({
           text,
-          isCorrect: idx === item.ans
+          isCorrect: idx === item.answer
         }));
         const shuffledOptions = shuffleArray(indexedOptions);
-        const newAnsIndex = shuffledOptions.findIndex(o => o.isCorrect);
+        const newAnswerIdx = shuffledOptions.findIndex(o => o.isCorrect);
 
         return {
-          topic: item.topic,
           type: item.type,
           q: item.q,
           options: shuffledOptions.map(o => o.text),
-          ans: newAnsIndex,
-          explain: item.explain
+          answer: newAnswerIdx,
+          explanation: item.explanation
         };
       });
     }
 
-    function getActiveQuizList() {
-      if (state.quiz.activeQuestions && state.quiz.activeQuestions.length > 0) {
-        return state.quiz.activeQuestions;
-      }
-      return QUIZ_QUESTIONS;
-    }
-
     let quizTimerInterval = null;
 
-    function startQuizTimer() {
-      if (quizTimerInterval) clearInterval(quizTimerInterval);
-      if (!state.quiz.useTimer || state.quiz.finished) return;
-
-      quizTimerInterval = setInterval(() => {
-        if (state.currentView !== 'quiz' || state.quiz.finished || !state.quiz.useTimer) {
-          clearInterval(quizTimerInterval);
-          return;
-        }
-        state.quiz.secondsLeft--;
-        const timerEl = document.getElementById('quiz-timer-display');
-        if (timerEl) {
-          const m = Math.floor(state.quiz.secondsLeft / 60);
-          const s = state.quiz.secondsLeft % 60;
-          timerEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-        }
-        if (state.quiz.secondsLeft <= 0) {
-          clearInterval(quizTimerInterval);
-          finishQuiz();
-        }
-      }, 1000);
-    }
-
-    function renderQuizPage() {
-      const qState = state.quiz;
-      const activeList = getActiveQuizList();
-
-      if (!qState.started) {
-        const selectedMode = qState.mode || 'all';
-        return `
-          ${renderNetoBox(
-            `Inilah <strong>Ujian Akhir Detektif Digital</strong>! Bank soal telah diperbarui menjadi <strong>${QUIZ_QUESTIONS.length} soal</strong> dan urutan soal serta pilihan jawabannya akan <strong>diacak otomatis</strong> setiap kali dimainkan!`,
-            'happy'
-          )}
-
-          <div class="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border-4 border-blue-400 shadow-xl text-center">
-            <div class="text-5xl mb-3">📝</div>
-            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Ujian Akhir Detektif Digital</h2>
-            <p class="text-slate-600 mt-2">Bank Soal ${QUIZ_QUESTIONS.length} Pertanyaan • Acak Soal & Opsi • Pembahasan Lengkap</p>
-
-            <!-- Pilihan Jumlah Soal -->
-            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-              <button onclick="state.quiz.mode = 'all'; saveState(); renderApp();"
-                class="p-4 rounded-2xl border-2 transition ${selectedMode === 'all' ? 'bg-blue-50 border-blue-600 shadow-sm' : 'bg-slate-50 border-slate-200'}">
-                <div class="flex items-center justify-between">
-                  <span class="font-display font-bold text-blue-800">🏆 Kuis Lengkap (38 Soal)</span>
-                  <span>${selectedMode === 'all' ? '✅' : '⚪'}</span>
-                </div>
-                <p class="text-xs text-slate-600 mt-1">Seluruh 38 soal acak dari Zona 1, 2, dan 3.</p>
-              </button>
-
-              <button onclick="state.quiz.mode = 'quick'; saveState(); renderApp();"
-                class="p-4 rounded-2xl border-2 transition ${selectedMode === 'quick' ? 'bg-purple-50 border-purple-600 shadow-sm' : 'bg-slate-50 border-slate-200'}">
-                <div class="flex items-center justify-between">
-                  <span class="font-display font-bold text-purple-800">⚡ Kuis Cepat (20 Soal)</span>
-                  <span>${selectedMode === 'quick' ? '✅' : '⚪'}</span>
-                </div>
-                <p class="text-xs text-slate-600 mt-1">20 soal acak pilihan untuk latihan singkat.</p>
-              </button>
-            </div>
-
-            <div class="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 inline-flex items-center gap-3">
-              <input id="quiz-timer-opt" type="checkbox" ${qState.useTimer ? 'checked' : ''} onchange="state.quiz.useTimer = this.checked; saveState();" class="w-5 h-5 accent-blue-600">
-              <label for="quiz-timer-opt" class="text-sm font-bold text-slate-700 cursor-pointer">
-                ⏱️ Aktifkan Timer Tantangan (${selectedMode === 'quick' ? '10 Menit' : '15 Menit'})
-              </label>
-            </div>
-
-            <div class="mt-6 flex flex-wrap justify-center gap-3">
-              <button onclick="navigateTo('map')" class="px-5 py-3.5 rounded-2xl bg-slate-200 text-slate-800 font-bold">
-                ⬅️ Kembali ke Peta
-              </button>
-              <button onclick="beginQuiz()" class="btn-game px-8 py-3.5 rounded-2xl bg-blue-600 text-white font-display font-bold text-lg">
-                🎲 Acak & Mulai Kuis Sekarang
-              </button>
-            </div>
-          </div>
-        `;
-      }
-
-      if (qState.finished) {
-        // Hitung skor per topik berdasarkan activeList
-        let correctCount = 0;
-        const topicScores = { 'Jaringan Komputer': 0, 'Jenis Jaringan': 0, 'Kode Rahasia': 0 };
-        const topicTotals = { 'Jaringan Komputer': 0, 'Jenis Jaringan': 0, 'Kode Rahasia': 0 };
-
-        activeList.forEach((item, idx) => {
-          topicTotals[item.topic] = (topicTotals[item.topic] || 0) + 1;
-          if (qState.answers[idx] === item.ans) {
-            correctCount++;
-            topicScores[item.topic] = (topicScores[item.topic] || 0) + 1;
-          }
-        });
-        const finalScore = Math.round((correctCount / activeList.length) * 100);
-
-        return `
-          ${renderNetoBox(
-            finalScore >= 80
-              ? `Selamat luar biasa, Detektif ${state.studentName || 'Hebat'}! Kamu meraih nilai <strong>${finalScore}</strong> dan berhasil membuka Badge <strong>MASTER INFORMATIKA</strong>!`
-              : `Bagus sekali usahamu! Kamu meraih nilai <strong>${finalScore}</strong> (${correctCount} dari ${activeList.length} benar). Kamu bisa mempelajari pembahasannya atau mencoba kembali dengan soal teracak baru!`,
-            finalScore >= 80 ? 'celebrate' : 'happy'
-          )}
-
-          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-emerald-400 shadow-xl mb-6">
-            <div class="text-center border-b-2 border-slate-100 pb-6">
-              <span class="px-4 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-extrabold uppercase">
-                Rekap Nilai Evaluasi Akhir ${state.studentName ? `• ${state.studentName} (${state.studentClass || '-'})` : ''}
-              </span>
-              <div class="text-6xl font-display font-extrabold text-blue-600 mt-3">${finalScore}</div>
-              <p class="text-slate-600 font-bold mt-1">Benar ${correctCount} dari ${activeList.length} Soal</p>
-
-              <!-- Rincian per Materi -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 max-w-2xl mx-auto">
-                <div class="p-3 rounded-2xl bg-blue-50 border border-blue-200">
-                  <p class="text-xs font-bold text-blue-700">Jaringan Komputer</p>
-                  <p class="font-display font-bold text-xl text-slate-800">${topicScores['Jaringan Komputer']} / ${topicTotals['Jaringan Komputer']}</p>
-                </div>
-                <div class="p-3 rounded-2xl bg-purple-50 border border-purple-200">
-                  <p class="text-xs font-bold text-purple-700">Jenis Jaringan</p>
-                  <p class="font-display font-bold text-xl text-slate-800">${topicScores['Jenis Jaringan']} / ${topicTotals['Jenis Jaringan']}</p>
-                </div>
-                <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200">
-                  <p class="text-xs font-bold text-amber-700">Kode Rahasia</p>
-                  <p class="font-display font-bold text-xl text-slate-800">${topicScores['Kode Rahasia']} / ${topicTotals['Kode Rahasia']}</p>
-                </div>
-              </div>
-
-              <div class="mt-6 flex flex-wrap justify-center gap-3">
-                <button onclick="retryQuiz()" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold">
-                  🎲 Ulangi & Acak Soal Baru
-                </button>
-                <button onclick="navigateTo('reflection')" class="btn-game px-7 py-3 rounded-2xl bg-purple-600 text-white font-display font-bold text-base">
-                  💭 Lanjut ke Halaman Refleksi ➡️
-                </button>
-              </div>
-            </div>
-
-            <!-- Pembahasan Seluruh Soal -->
-            <h3 class="text-xl font-extrabold text-slate-800 mt-6 mb-4">📖 Pembahasan Jawaban:</h3>
-            <div class="space-y-3">
-              ${activeList.map((item, idx) => {
-                const userPick = qState.answers[idx];
-                const isRight = userPick === item.ans;
-                return `
-                  <div class="p-4 rounded-2xl border-2 ${isRight ? 'bg-emerald-50/70 border-emerald-300' : 'bg-rose-50/70 border-rose-300'}">
-                    <div class="flex items-center justify-between text-xs font-bold mb-1">
-                      <span class="text-slate-500">Soal ${idx + 1} • ${item.topic}</span>
-                      <span class="${isRight ? 'text-emerald-700' : 'text-rose-700'}">${isRight ? '✅ Benar' : '❌ Kurang Tepat'}</span>
-                    </div>
-                    <p class="font-bold text-slate-800 text-sm">${item.q}</p>
-                    <p class="text-xs mt-1 text-slate-700">
-                      Jawabanmu: <strong>${userPick !== undefined ? item.options[userPick] : 'Tidak dijawab'}</strong> |
-                      Kunci: <strong class="text-emerald-800">${item.options[item.ans]}</strong>
-                    </p>
-                    <p class="text-xs text-slate-600 mt-1 italic">💡 ${item.explain}</p>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      // Sedang mengerjakan kuis
-      const idx = qState.currentIdx;
-      const curQ = activeList[idx];
-      const picked = qState.answers[idx];
-      const hasPicked = picked !== undefined;
-      const pct = Math.round(((idx + 1) / activeList.length) * 100);
-
-      return `
-        <div class="max-w-3xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border-4 border-blue-400 shadow-xl">
-          <!-- Bar Atas Soal -->
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <span class="px-3.5 py-1 rounded-full bg-blue-100 text-blue-800 font-extrabold text-xs">
-              Soal ${idx + 1} dari ${activeList.length} • ${curQ.topic} (${curQ.type})
-            </span>
-            ${qState.useTimer ? `
-              <span class="px-3.5 py-1 rounded-full bg-amber-100 text-amber-900 font-display font-bold text-sm">
-                ⏱️ <span id="quiz-timer-display">${String(Math.floor(qState.secondsLeft / 60)).padStart(2, '0')}:${String(qState.secondsLeft % 60).padStart(2, '0')}</span>
-              </span>
-            ` : ''}
-          </div>
-
-          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden mb-6">
-            <div class="h-full bg-blue-600 transition-all duration-300" style="width: ${pct}%"></div>
-          </div>
-
-          <h3 class="text-lg sm:text-2xl font-extrabold text-slate-800 leading-snug mb-5">
-            ${curQ.q}
-          </h3>
-
-          <div class="space-y-3">
-            ${curQ.options.map((opt, oIdx) => {
-              let btnStyle = 'bg-slate-50 hover:bg-blue-50 border-slate-200 text-slate-800';
-              if (hasPicked) {
-                if (oIdx === curQ.ans) {
-                  btnStyle = 'bg-emerald-100 border-emerald-500 text-emerald-950 font-bold';
-                } else if (oIdx === picked && picked !== curQ.ans) {
-                  btnStyle = 'bg-rose-100 border-rose-500 text-rose-950';
-                } else {
-                  btnStyle = 'bg-slate-50 border-slate-200 opacity-70';
-                }
-              }
-              return `
-                <button onclick="selectQuizOption(${idx}, ${oIdx})" ${hasPicked ? 'disabled' : ''}
-                  class="w-full text-left p-4 rounded-2xl border-2 transition flex items-start gap-3 text-sm sm:text-base ${btnStyle}">
-                  <span class="w-8 h-8 rounded-xl bg-blue-600 text-white font-display font-bold flex items-center justify-center shrink-0">
-                    ${String.fromCharCode(65 + oIdx)}
-                  </span>
-                  <span>${opt}</span>
-                </button>
-              `;
-            }).join('')}
-          </div>
-
-          ${hasPicked ? `
-            <div class="mt-5 p-4 rounded-2xl border-2 ${picked === curQ.ans ? 'bg-emerald-50 border-emerald-400 text-emerald-900' : 'bg-amber-50 border-amber-400 text-amber-950'} animate-pop">
-              <p class="font-extrabold">${picked === curQ.ans ? '✅ Jawabanmu Benar!' : '💡 Yuk Pelajari Pembahasannya:'}</p>
-              <p class="text-sm mt-1">${curQ.explain}</p>
-            </div>
-          ` : ''}
-
-          <div class="mt-6 flex items-center justify-between">
-            <button onclick="prevQuizQuestion()" ${idx === 0 ? 'disabled' : ''}
-              class="px-5 py-3 rounded-2xl bg-slate-200 text-slate-800 font-bold disabled:opacity-40">
-              ⬅️ Sebelumnya
-            </button>
-
-            ${idx < activeList.length - 1 ? `
-              <button onclick="nextQuizQuestion()" ${!hasPicked ? 'disabled' : ''}
-                class="btn-game px-6 py-3 rounded-2xl bg-blue-600 text-white font-display font-bold">
-                Soal Berikutnya ➡️
-              </button>
-            ` : `
-              <button onclick="finishQuiz()" ${!hasPicked ? 'disabled' : ''}
-                class="btn-game px-7 py-3.5 rounded-2xl bg-emerald-600 text-white font-display font-bold text-base">
-                🏁 Selesai & Lihat Nilai Akhir
-              </button>
-            `}
-          </div>
-        </div>
-      `;
-    }
-
-    function beginQuiz() {
+    function startQuiz(mode = 'all', withTimer = false) {
       AudioEngine.playClick();
-      const mode = state.quiz.mode || 'all';
-      state.quiz.started = true;
-      state.quiz.finished = false;
-      state.quiz.currentIdx = 0;
-      state.quiz.activeQuestions = buildShuffledQuizSet(mode);
-      state.quiz.answers = {};
-      state.quiz.secondsLeft = mode === 'quick' ? 600 : 900;
+      if (quizTimerInterval) clearInterval(quizTimerInterval);
+
+      const shuffledQuestions = buildShuffledQuizSet(mode);
+
+      state.quiz = {
+        started: true,
+        finished: false,
+        mode: mode,
+        useTimer: withTimer,
+        secondsLeft: mode === 'quick' ? 900 : 1500, // 15 menit untuk 20 soal, 25 menit untuk 38 soal
+        currentIdx: 0,
+        activeQuestions: shuffledQuestions,
+        answers: {},
+        score: 0
+      };
       saveState();
       renderApp();
-      startQuizTimer();
+
+      if (withTimer) {
+        quizTimerInterval = setInterval(() => {
+          if (!state.quiz.started || state.quiz.finished) {
+            clearInterval(quizTimerInterval);
+            return;
+          }
+          state.quiz.secondsLeft--;
+          const timerEl = document.getElementById('quiz-timer-text');
+          if (timerEl) {
+            const m = Math.floor(state.quiz.secondsLeft / 60);
+            const s = String(state.quiz.secondsLeft % 60).padStart(2, '0');
+            timerEl.textContent = `${m}:${s}`;
+          }
+          if (state.quiz.secondsLeft <= 0) {
+            clearInterval(quizTimerInterval);
+            finishQuiz();
+          }
+        }, 1000);
+      }
     }
 
-    function selectQuizOption(qIdx, oIdx) {
-      const activeList = getActiveQuizList();
-      if (state.quiz.answers[qIdx] !== undefined) return;
-      state.quiz.answers[qIdx] = oIdx;
-      if (oIdx === activeList[qIdx].ans) {
+    function selectQuizOption(optIdx) {
+      const idx = state.quiz.currentIdx;
+      if (state.quiz.answers[idx] !== undefined) return; // Sudah dijawab
+
+      const questions = (state.quiz.activeQuestions && state.quiz.activeQuestions.length > 0)
+        ? state.quiz.activeQuestions
+        : QUIZ_QUESTIONS;
+      const q = questions[idx];
+      if (!q) return;
+
+      state.quiz.answers[idx] = optIdx;
+      if (optIdx === q.answer) {
         AudioEngine.playCorrect();
       } else {
         AudioEngine.playWrong();
@@ -3328,265 +3086,404 @@
     }
 
     function nextQuizQuestion() {
-      const activeList = getActiveQuizList();
       AudioEngine.playClick();
-      if (state.quiz.currentIdx < activeList.length - 1) {
+      const questions = (state.quiz.activeQuestions && state.quiz.activeQuestions.length > 0)
+        ? state.quiz.activeQuestions
+        : QUIZ_QUESTIONS;
+      if (state.quiz.currentIdx < questions.length - 1) {
         state.quiz.currentIdx++;
         saveState();
         renderApp();
-      }
-    }
-
-    function prevQuizQuestion() {
-      AudioEngine.playClick();
-      if (state.quiz.currentIdx > 0) {
-        state.quiz.currentIdx--;
-        saveState();
-        renderApp();
+      } else {
+        finishQuiz();
       }
     }
 
     function finishQuiz() {
-      const activeList = getActiveQuizList();
+      if (quizTimerInterval) clearInterval(quizTimerInterval);
+      const questions = (state.quiz.activeQuestions && state.quiz.activeQuestions.length > 0)
+        ? state.quiz.activeQuestions
+        : QUIZ_QUESTIONS;
       let correctCount = 0;
-      activeList.forEach((item, idx) => {
-        if (state.quiz.answers[idx] === item.ans) correctCount++;
+      questions.forEach((q, idx) => {
+        if (state.quiz.answers[idx] === q.answer) correctCount++;
       });
-      const finalScore = Math.round((correctCount / activeList.length) * 100);
+      const score = Math.round((correctCount / questions.length) * 100);
       state.quiz.finished = true;
-      state.quiz.score = finalScore;
+      state.quiz.score = score;
 
-      grantReward('quiz_finished', finalScore + 50, finalScore >= 80 ? 3 : 1, 'Ujian Akhir Selesai!', `Nilai akhirmu: ${finalScore}`);
-      AudioEngine.playMissionComplete();
+      if (score >= 80) {
+        grantReward('quiz_master', 150, 3, 'Master Informatika!', `Luar biasa! Nilai kuis akhirmu ${score}/100!`);
+        AudioEngine.playMissionComplete();
+      } else {
+        grantReward('quiz_done', 80, 1, 'Kuis Akhir Selesai!', `Nilai akhirmu ${score}/100. Kamu bisa mengulangi untuk nilai lebih tinggi!`);
+      }
       saveState();
       renderApp();
     }
 
-    function retryQuiz() {
-      AudioEngine.playClick();
-      state.quiz.started = false;
-      state.quiz.finished = false;
-      state.quiz.currentIdx = 0;
-      state.quiz.activeQuestions = [];
-      state.quiz.answers = {};
-      saveState();
-      renderApp();
+    function renderQuizPage() {
+      if (!state.quiz.started) {
+        return `
+          <div class="mb-4">
+            <button onclick="navigateTo('map')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-sm">⬅️ Kembali ke Peta</button>
+          </div>
+          ${renderNetoBox(
+            `Halo <strong>${state.studentName || 'Detektif'}</strong>${state.studentClass ? ` (Kelas ${state.studentClass})` : ''}! Saatnya menghadapi <strong>Ujian Evaluasi Detektif Digital</strong>! Seluruh soal dan pilihan jawaban akan <strong>diacak otomatis</strong> setiap kali dimulai.`,
+            'happy',
+            'Ruang Evaluasi Akhir'
+          )}
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-emerald-400 shadow-xl max-w-2xl mx-auto text-center">
+            <div class="text-5xl mb-3">📝</div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800">Ujian Akhir Detektif Digital</h2>
+            <p class="text-sm sm:text-base text-slate-600 mt-2">
+              Bank soal berisi <strong>38 soal</strong> (Jaringan Komputer, Jenis Jaringan LAN/MAN/WAN, serta Kode Rahasia Multi-Rumus). Urutan soal dan opsi jawaban selalu teracak!
+            </p>
+            <div class="mt-6 space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button onclick="startQuiz('all', false)" class="btn-game px-5 py-4 rounded-2xl bg-emerald-600 text-white font-display font-bold text-sm sm:text-base">
+                  🎯 Kuis Lengkap (38 Soal Acak)
+                </button>
+                <button onclick="startQuiz('quick', false)" class="btn-game px-5 py-4 rounded-2xl bg-blue-600 text-white font-display font-bold text-sm sm:text-base">
+                  ⚡ Kuis Cepat (20 Soal Acak)
+                </button>
+              </div>
+              <div>
+                <button onclick="startQuiz('all', true)" class="btn-game px-6 py-3 rounded-2xl bg-amber-400 text-slate-900 font-display font-bold text-xs sm:text-sm">
+                  ⏱️ Tantangan 38 Soal dengan Timer (25 Menit)
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      const questions = (state.quiz.activeQuestions && state.quiz.activeQuestions.length > 0)
+        ? state.quiz.activeQuestions
+        : QUIZ_QUESTIONS;
+
+      if (state.quiz.finished) {
+        let correctCount = 0;
+        questions.forEach((q, i) => {
+          if (state.quiz.answers[i] === q.answer) correctCount++;
+        });
+        const passed = state.quiz.score >= 80;
+
+        return `
+          <div class="max-w-3xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border-4 ${passed ? 'border-emerald-400' : 'border-amber-400'} shadow-xl text-center animate-pop">
+            <div class="text-6xl mb-3">${passed ? '👑' : '🎯'}</div>
+            <h2 class="text-3xl font-extrabold text-slate-800">Rekap Nilai Ujian Detektif</h2>
+            ${state.studentName ? `<p class="text-sm font-bold text-blue-700 mt-1">Detektif ${state.studentName}${state.studentClass ? ` • Kelas ${state.studentClass}` : ''}</p>` : ''}
+            <p class="text-slate-600 mt-1">Kamu menjawab benar <strong>${correctCount} dari ${questions.length} soal</strong></p>
+
+            <div class="my-6 inline-block px-10 py-5 rounded-3xl bg-gradient-to-br from-blue-600 to-purple-700 text-white shadow-lg">
+              <p class="text-xs font-extrabold uppercase tracking-wider text-cyan-200">Nilai Akhir</p>
+              <p class="text-5xl font-display font-extrabold text-yellow-300 mt-1">${state.quiz.score}</p>
+            </div>
+
+            <p class="text-sm sm:text-base font-medium text-slate-700 max-w-xl mx-auto mb-6">
+              ${passed
+                ? 'Luar biasa! Kamu berhasil meraih Badge <strong>MASTER INFORMATIKA</strong>. Lanjutkan ke Halaman Refleksi untuk mencetak sertifikatmu!'
+                : 'Bagus sekali! Kamu sudah menyelesaikan ujian. Kamu bisa mencoba ulang dengan urutan soal teracak baru untuk meraih nilai minimal 80.'}
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3">
+              <button onclick="startQuiz('${state.quiz.mode || 'all'}', false)" class="btn-game px-6 py-3.5 rounded-2xl bg-slate-200 text-slate-800 font-display font-bold">
+                🔄 Ulangi Kuis (Soal Diacak Baru)
+              </button>
+              <button onclick="navigateTo('reflection')" class="btn-game px-7 py-3.5 rounded-2xl bg-purple-600 text-white font-display font-bold">
+                ✍️ Lanjut ke Refleksi Belajar ➡️
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      const idx = state.quiz.currentIdx;
+      const q = questions[idx];
+      const userChoice = state.quiz.answers[idx];
+      const isAnswered = userChoice !== undefined;
+      const pct = Math.round(((idx + 1) / questions.length) * 100);
+
+      const m = Math.floor(state.quiz.secondsLeft / 60);
+      const s = String(state.quiz.secondsLeft % 60).padStart(2, '0');
+
+      return `
+        <div class="max-w-3xl mx-auto">
+          <!-- Bar Atas Kuis -->
+          <div class="bg-white rounded-2xl p-4 border-2 border-slate-200 shadow-sm mb-4">
+            <div class="flex items-center justify-between text-xs sm:text-sm font-extrabold text-slate-700 mb-2">
+              <span>Soal ${idx + 1} dari ${questions.length} • <span class="text-purple-600">${q.type}</span></span>
+              ${state.quiz.useTimer ? `<span class="px-3 py-0.5 rounded-full bg-rose-100 text-rose-700">⏱️ <span id="quiz-timer-text">${m}:${s}</span></span>` : '<span>🎲 Soal & Opsi Teracak</span>'}
+            </div>
+            <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-emerald-400 to-blue-600 transition-all duration-300" style="width: ${pct}%"></div>
+            </div>
+          </div>
+
+          <!-- Kartu Soal -->
+          <div class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-blue-200 shadow-xl">
+            <h3 class="text-lg sm:text-xl font-extrabold text-slate-800 leading-relaxed mb-6">
+              ${idx + 1}. ${q.q}
+            </h3>
+
+            <div class="space-y-3">
+              ${q.options.map((opt, oIdx) => {
+                let btnStyle = 'bg-slate-50 hover:bg-blue-50 border-slate-200 text-slate-800';
+                let badge = String.fromCharCode(65 + oIdx);
+
+                if (isAnswered) {
+                  if (oIdx === q.answer) {
+                    btnStyle = 'bg-emerald-100 border-emerald-500 text-emerald-950 font-bold';
+                    badge = '✅';
+                  } else if (oIdx === userChoice) {
+                    btnStyle = 'bg-rose-100 border-rose-400 text-rose-950';
+                    badge = '❌';
+                  } else {
+                    btnStyle = 'bg-slate-50 border-slate-200 text-slate-400';
+                  }
+                }
+
+                return `
+                  <button onclick="selectQuizOption(${oIdx})" ${isAnswered ? 'disabled' : ''}
+                    class="w-full text-left p-4 rounded-2xl border-2 transition flex items-start gap-3 text-sm sm:text-base ${btnStyle}">
+                    <span class="w-7 h-7 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-extrabold text-xs shrink-0 mt-0.5">${badge}</span>
+                    <span>${opt}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            ${isAnswered ? `
+              <div class="mt-6 p-4 rounded-2xl ${userChoice === q.answer ? 'bg-emerald-50 border-2 border-emerald-300 text-emerald-900' : 'bg-amber-50 border-2 border-amber-300 text-amber-900'} animate-pop">
+                <p class="font-extrabold text-sm">${userChoice === q.answer ? '🎉 Jawaban Benar!' : '💡 Pembahasan NETO:'}</p>
+                <p class="text-xs sm:text-sm mt-1">${q.explanation}</p>
+              </div>
+
+              <div class="mt-5 flex justify-end">
+                <button onclick="nextQuizQuestion()" class="btn-game px-7 py-3.5 rounded-2xl bg-blue-600 text-white font-display font-bold">
+                  ${idx < questions.length - 1 ? 'Soal Berikutnya ➡️' : '🏁 Lihat Rekap Nilai Akhir'}
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
     }
 
     // =========================================================================
-    // 11. HALAMAN REFLEKSI INTERAKTIF (DEEP LEARNING - MEREFLEKSI)
+    // 11. HALAMAN REFLEKSI PEMBELAJARAN MENDALAM (DEEP LEARNING)
     // =========================================================================
     function renderReflectionPage() {
-      const ref = state.reflection;
+      const r = state.reflection;
       const moods = [
         { emoji: '😊', label: 'Saya sudah memahami' },
         { emoji: '😐', label: 'Saya masih perlu berlatih' },
         { emoji: '🤔', label: 'Saya membutuhkan bantuan' }
       ];
 
-      const questions = [
-        { key: 'q1', label: '1. Apa yang saya pelajari hari ini?', ph: 'Tuliskan hal baru yang kamu pelajari...' },
-        { key: 'q2', label: '2. Apa manfaat jaringan komputer dalam kehidupan sehari-hari?', ph: 'Contoh: berbagi printer, mengirim tugas...' },
-        { key: 'q3', label: '3. Apa perbedaan utama antara LAN, MAN, dan WAN?', ph: 'Jelaskan berdasarkan luas wilayahnya...' },
-        { key: 'q4', label: '4. Mengapa pesan atau informasi penting perlu dilindungi dengan kode?', ph: 'Tuliskan alasan pentingnya keamanan informasi...' },
-        { key: 'q5', label: '5. Aktivitas atau permainan mana yang paling menyenangkan?', ph: 'Misalnya: Simulasi jaringan / Mesin Kode Rahasia...' },
-        { key: 'q6', label: '6. Bagian mana yang masih terasa sulit dan ingin dipelajari lagi?', ph: 'Tuliskan bagian yang ingin kamu latih kembali...' }
-      ];
-
       return `
+        <div class="mb-4">
+          <button onclick="navigateTo('map')" class="px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-sm">⬅️ Kembali ke Peta</button>
+        </div>
+
         ${renderNetoBox(
-          "Tahap terakhir sebelum menerima <strong>Sertifikat Detektif Digital</strong> adalah <strong>Merefleksi</strong>! Pilih perasaan pemahamanmu dan tuliskan pendapatmu dari petualangan hari ini.",
+          "Tahap terakhir pembelajaran mendalam adalah <strong>Merefleksi</strong>! Tuliskan pemahamanmu dengan jujur agar guru dan NETO tahu bagian mana yang paling kamu kuasai.",
           'happy',
-          'Tahap Merefleksi (Deep Learning)'
+          'Ruang Refleksi Detektif'
         )}
 
-        <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border-4 border-purple-300 shadow-xl">
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">💭 Refleksi Petualangan Digitalku</h2>
-          <p class="text-sm text-slate-600 mb-6">Bagaimana perasaanmu setelah mempelajari Jaringan Komputer dan Kode Rahasia?</p>
-
-          <!-- Pilihan Emotikon -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-            ${moods.map(m => `
-              <button onclick="setReflectionMood('${m.emoji}')"
-                class="p-4 rounded-2xl border-2 transition flex items-center gap-3 text-left ${
-                  ref.mood === m.emoji
-                    ? 'bg-purple-100 border-purple-600 shadow-md'
-                    : 'bg-slate-50 hover:bg-purple-50 border-slate-200'
-                }">
-                <span class="text-4xl">${m.emoji}</span>
-                <span class="font-bold text-sm text-slate-800">${m.label}</span>
-              </button>
-            `).join('')}
+        <form onsubmit="submitReflection(event)" class="bg-white rounded-3xl p-6 sm:p-8 border-4 border-purple-300 shadow-xl max-w-3xl mx-auto space-y-5">
+          <!-- Pilihan Perasaan / Pemahaman -->
+          <div>
+            <label class="block font-extrabold text-slate-800 mb-2">Bagaimana tingkat pemahamanmu setelah menyelesaikan petualangan ini?</label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              ${moods.map(m => `
+                <button type="button" onclick="selectReflectionMood('${m.emoji}')"
+                  class="p-4 rounded-2xl border-2 text-center transition ${
+                    r.mood === m.emoji ? 'bg-purple-100 border-purple-600 shadow-sm' : 'bg-slate-50 border-slate-200 hover:bg-purple-50'
+                  }">
+                  <div class="text-3xl mb-1">${m.emoji}</div>
+                  <p class="text-xs sm:text-sm font-bold text-slate-800">${m.label}</p>
+                </button>
+              `).join('')}
+            </div>
           </div>
 
-          <!-- 6 Pertanyaan Reflektif -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            ${questions.map(item => `
-              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <label class="block text-sm font-bold text-slate-800 mb-1.5">${item.label}</label>
-                <textarea rows="2" placeholder="${item.ph}"
-                  oninput="updateReflectionField('${item.key}', this.value)"
-                  class="w-full p-2.5 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400">${ref[item.key] || ''}</textarea>
-              </div>
-            `).join('')}
+            <div>
+              <label class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">1. Apa yang saya pelajari hari ini?</label>
+              <textarea id="ref-q1" rows="2" required placeholder="Tuliskan hal baru yang kamu pelajari..."
+                class="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-purple-500 focus:outline-none text-sm">${r.q1}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">2. Apa manfaat jaringan komputer?</label>
+              <textarea id="ref-q2" rows="2" required placeholder="Contoh: berbagi file dan printer..."
+                class="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-purple-500 focus:outline-none text-sm">${r.q2}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">3. Apa perbedaan LAN, MAN, dan WAN?</label>
+              <textarea id="ref-q3" rows="2" required placeholder="Jelaskan perbedaan luas jangkauannya..."
+                class="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-purple-500 focus:outline-none text-sm">${r.q3}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">4. Mengapa pesan perlu dilindungi dengan kode?</label>
+              <textarea id="ref-q4" rows="2" required placeholder="Agar informasi rahasia tetap aman..."
+                class="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-purple-500 focus:outline-none text-sm">${r.q4}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">5. Aktivitas mana yang paling menyenangkan?</label>
+              <input id="ref-q5" type="text" required value="${r.q5}" placeholder="Contoh: Mesin Kode Rahasia / Simulasi Jaringan"
+                class="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-purple-500 focus:outline-none text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs sm:text-sm font-extrabold text-slate-700 mb-1">6. Bagian mana yang masih terasa sulit?</label>
+              <input id="ref-q6" type="text" required value="${r.q6}" placeholder="Tuliskan bagian yang ingin dilatih lagi..."
+                class="w-full p-3 rounded-2xl border-2 border-slate-200 focus:border-purple-500 focus:outline-none text-sm" />
+            </div>
           </div>
 
-          <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <button onclick="navigateTo('map')" class="px-5 py-3 rounded-2xl bg-slate-200 text-slate-800 font-bold">
-              ⬅️ Kembali ke Peta
-            </button>
-            <button onclick="submitReflection()"
-              class="btn-game px-7 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-display font-bold text-base sm:text-lg">
-              🏅 SELESAIKAN PETUALANGAN & AMBIL SERTIFIKAT!
+          <div class="pt-2 flex justify-end">
+            <button type="submit" class="btn-game px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-display font-bold text-base sm:text-lg">
+              🎓 Simpan Refleksi & Buka Sertifikat!
             </button>
           </div>
-        </div>
+        </form>
       `;
     }
 
-    function setReflectionMood(emoji) {
+    function selectReflectionMood(emoji) {
       AudioEngine.playClick();
       state.reflection.mood = emoji;
       saveState();
       renderApp();
     }
 
-    function updateReflectionField(key, val) {
-      state.reflection[key] = val;
-      saveState();
-    }
-
-    function submitReflection() {
+    function submitReflection(e) {
+      e.preventDefault();
+      state.reflection.q1 = document.getElementById('ref-q1').value.trim();
+      state.reflection.q2 = document.getElementById('ref-q2').value.trim();
+      state.reflection.q3 = document.getElementById('ref-q3').value.trim();
+      state.reflection.q4 = document.getElementById('ref-q4').value.trim();
+      state.reflection.q5 = document.getElementById('ref-q5').value.trim();
+      state.reflection.q6 = document.getElementById('ref-q6').value.trim();
       state.reflection.completed = true;
-      grantReward('reflection_done', 80, 2, 'Refleksi Selesai!', 'Sertifikat Detektif Digital siap dicetak!');
+
+      grantReward('reflection_done', 70, 2, 'Refleksi Tersimpan!', 'Selamat, Detektif Digital! Sertifikatmu sudah siap!');
       AudioEngine.playMissionComplete();
-      saveState();
       navigateTo('certificate');
     }
 
     // =========================================================================
-    // 12. HALAMAN AKHIR & SERTIFIKAT DIGITAL CETAK
+    // 12. HALAMAN AKHIR & SERTIFIKAT DETEKTIF DIGITAL
     // =========================================================================
     function renderCertificatePage() {
-      const badges = getBadges().filter(b => b.unlocked);
+      const badges = getBadges();
+      const unlockedBadges = badges.filter(b => b.unlocked);
       const pct = getOverallProgress();
-      const today = new Date().toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      });
+      const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
       return `
-        <div class="max-w-4xl mx-auto">
-          <!-- Ucapan Selamat -->
-          <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-6 text-center no-print">
-            <div class="flex justify-center mb-3">
-              ${renderNetoAvatar('celebrate', 'md')}
+        <div class="max-w-4xl mx-auto space-y-6">
+          <!-- Banner Selamat -->
+          <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col sm:flex-row items-center gap-5 no-print">
+            ${renderNetoAvatar('celebrate', 'md')}
+            <div class="text-center sm:text-left">
+              <h2 class="text-2xl sm:text-4xl font-extrabold text-yellow-300">SELAMAT, DETEKTIF DIGITAL! 🎉</h2>
+              <p class="text-sm sm:text-base text-blue-100 mt-1">
+                Petualanganmu telah selesai. Kamu telah belajar tentang jaringan komputer, jenis jaringan, dan kode rahasia.
+              </p>
             </div>
-            <h2 class="text-3xl sm:text-4xl font-extrabold text-yellow-300">🎉 SELAMAT, DETEKTIF DIGITAL! 🎉</h2>
-            <p class="mt-2 text-base sm:text-lg text-white/95 max-w-2xl mx-auto">
-              Petualanganmu telah selesai. Kamu telah belajar tentang jaringan komputer, jenis jaringan, dan kode rahasia.
-            </p>
+          </div>
 
-            <!-- Ringkasan Statistik -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
-              <div class="bg-white/15 backdrop-blur-sm p-3.5 rounded-2xl">
-                <p class="text-xs text-cyan-200 font-bold">TOTAL POIN</p>
-                <p class="text-2xl font-display font-extrabold text-yellow-300">⚡ ${state.points}</p>
-              </div>
-              <div class="bg-white/15 backdrop-blur-sm p-3.5 rounded-2xl">
-                <p class="text-xs text-cyan-200 font-bold">TOTAL BINTANG</p>
-                <p class="text-2xl font-display font-extrabold text-yellow-300">⭐ ${state.stars}</p>
-              </div>
-              <div class="bg-white/15 backdrop-blur-sm p-3.5 rounded-2xl">
-                <p class="text-xs text-cyan-200 font-bold">NILAI KUIS</p>
-                <p class="text-2xl font-display font-extrabold text-emerald-300">📝 ${state.quiz.score}</p>
-              </div>
-              <div class="bg-white/15 backdrop-blur-sm p-3.5 rounded-2xl">
-                <p class="text-xs text-cyan-200 font-bold">PROGRES BELAJAR</p>
-                <p class="text-2xl font-display font-extrabold text-white">🚀 ${pct}%</p>
-              </div>
+          <!-- Ringkasan Statistik -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 no-print">
+            <div class="bg-white p-4 rounded-2xl border-2 border-blue-200 text-center">
+              <p class="text-xs font-bold text-slate-500">Total Poin</p>
+              <p class="text-2xl font-display font-extrabold text-blue-700 mt-1">⚡ ${state.points}</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-2 border-amber-200 text-center">
+              <p class="text-xs font-bold text-slate-500">Total Bintang</p>
+              <p class="text-2xl font-display font-extrabold text-amber-500 mt-1">⭐ ${state.stars}</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-2 border-purple-200 text-center">
+              <p class="text-xs font-bold text-slate-500">Badge Diraih</p>
+              <p class="text-2xl font-display font-extrabold text-purple-700 mt-1">🏅 ${unlockedBadges.length}/5</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-2 border-emerald-200 text-center">
+              <p class="text-xs font-bold text-slate-500">Nilai Kuis</p>
+              <p class="text-2xl font-display font-extrabold text-emerald-600 mt-1">📝 ${state.quiz.finished ? state.quiz.score : '-'}</p>
+            </div>
+            <div class="col-span-2 sm:col-span-1 bg-white p-4 rounded-2xl border-2 border-cyan-200 text-center">
+              <p class="text-xs font-bold text-slate-500">Progres</p>
+              <p class="text-2xl font-display font-extrabold text-cyan-600 mt-1">🚀 ${pct}%</p>
             </div>
           </div>
 
           <!-- Input Nama & Kelas untuk Sertifikat -->
-          <div class="bg-white rounded-2xl p-4 border-2 border-blue-200 mb-4 grid grid-cols-1 sm:grid-cols-12 items-center gap-3 no-print">
-            <label class="sm:col-span-4 text-sm font-bold text-slate-700">✍️ Edit Identitas pada Sertifikat:</label>
-            <input type="text" value="${state.studentName}" placeholder="Nama Lengkap Murid..."
-              oninput="updateCertIdentityLive(this.value, null)"
-              class="sm:col-span-5 px-4 py-2 rounded-xl bg-blue-50 border border-blue-300 font-bold text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <input type="text" value="${state.studentClass}" placeholder="Kelas (Contoh: VI-A)"
-              oninput="updateCertIdentityLive(null, this.value)"
-              class="sm:col-span-3 px-4 py-2 rounded-xl bg-purple-50 border border-purple-300 font-bold text-purple-900 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+          <div class="bg-white p-5 rounded-3xl border-2 border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 items-center no-print">
+            <div class="sm:col-span-2">
+              <label for="cert-name-input" class="text-xs font-extrabold text-slate-700 block mb-1">✍️ Nama Lengkap pada Sertifikat:</label>
+              <input id="cert-name-input" type="text" value="${state.studentName}" placeholder="Ketik nama lengkapmu di sini..."
+                oninput="updateCertNameLive(this.value)"
+                class="w-full px-4 py-2.5 rounded-xl border-2 border-blue-300 font-bold text-slate-800 focus:outline-none" />
+            </div>
+            <div>
+              <label for="cert-class-input" class="text-xs font-extrabold text-slate-700 block mb-1">🏫 Kelas:</label>
+              <input id="cert-class-input" type="text" value="${state.studentClass}" placeholder="Contoh: VI-A"
+                oninput="updateCertClassLive(this.value)"
+                class="w-full px-4 py-2.5 rounded-xl border-2 border-purple-300 font-bold text-slate-800 focus:outline-none" />
+            </div>
           </div>
 
-          <!-- SERTIFIKAT DIGITAL (AREA PRINTABLE) -->
-          <div id="certificate-printable" class="bg-white rounded-[2rem] p-6 sm:p-10 border-[10px] border-double border-blue-600 shadow-2xl relative overflow-hidden text-center">
-            <!-- Ornamen Sudut -->
-            <div class="absolute top-3 left-3 text-2xl opacity-40">🌐</div>
-            <div class="absolute top-3 right-3 text-2xl opacity-40">🔐</div>
-            <div class="absolute bottom-3 left-3 text-2xl opacity-40">💻</div>
-            <div class="absolute bottom-3 right-3 text-2xl opacity-40">⭐</div>
-
-            <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-extrabold uppercase tracking-widest">
-              PENGHARGAAN PEMBELAJARAN INFORMATIKA • KELAS VI SD/MI
+          <!-- KARTU SERTIFIKAT DIGITAL (SIAP CETAK) -->
+          <div id="certificate-printable" class="bg-white rounded-[2rem] p-6 sm:p-10 border-8 border-double border-blue-600 shadow-2xl text-center relative overflow-hidden">
+            <div class="inline-block px-4 py-1 rounded-full bg-amber-100 text-amber-800 font-extrabold text-xs uppercase tracking-widest mb-2">
+              Penghargaan Pembelajaran Informatika • Fase C Kelas VI SD/MI
             </div>
-
-            <h1 class="text-3xl sm:text-5xl font-extrabold text-blue-800 mt-3 tracking-wide">
+            <h3 class="text-2xl sm:text-4xl font-display font-extrabold text-blue-800 tracking-wide">
               SERTIFIKAT DETEKTIF DIGITAL
-            </h1>
-            <p class="text-sm sm:text-base text-slate-500 font-semibold mt-1">
-              Diberikan dengan bangga kepada:
-            </p>
+            </h3>
+            <p class="text-sm text-slate-500 mt-2">Diberikan dengan bangga kepada:</p>
 
-            <div class="my-5 py-3 px-6 border-b-4 border-dashed border-amber-400 max-w-xl mx-auto">
+            <div class="my-4 py-3 px-6 border-b-4 border-dashed border-amber-400 inline-block min-w-[260px] sm:min-w-[380px]">
               <p id="cert-display-name" class="text-2xl sm:text-4xl font-display font-extrabold text-purple-700">
                 ${state.studentName || 'DETEKTIF DIGITAL HEBAT'}
               </p>
-              <p id="cert-display-class" class="text-sm sm:text-lg font-bold text-blue-700 mt-1">
-                ${state.studentClass ? `Kelas: ${state.studentClass}` : 'Kelas VI SD/MI'}
+              <p id="cert-display-class" class="text-sm sm:text-base font-extrabold text-blue-700 mt-1">
+                ${state.studentClass ? `Kelas: ${state.studentClass}` : 'Siswa Kelas VI SD/MI'}
               </p>
             </div>
 
             <p class="text-sm sm:text-base text-slate-700 max-w-2xl mx-auto leading-relaxed">
-              Telah berhasil menyelesaikan seluruh misi pembelajaran interaktif <strong>"Petualangan Digital: Menjelajah Jaringan Komputer dan Kode Rahasia"</strong> dengan capaian <strong>${state.points} Poin</strong>, <strong>${state.stars} Bintang</strong>, dan Nilai Evaluasi <strong>${state.quiz.score}</strong>.
+              Telah berhasil menuntaskan misi eksplorasi interaktif <strong>"Petualangan Digital: Menjelajah Jaringan Komputer dan Kode Rahasia"</strong> dengan capaian <strong>${state.points} Poin</strong>, <strong>${state.stars} Bintang</strong>, dan Nilai Evaluasi <strong>${state.quiz.finished ? state.quiz.score : 100}/100</strong>.
             </p>
 
-            <!-- Badge yang diperoleh -->
-            <div class="mt-5 flex flex-wrap justify-center gap-2">
-              ${badges.length > 0
-                ? badges.map(b => `<span class="px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-extrabold">${b.icon} ${b.name}</span>`).join('')
-                : '<span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">🏅 Penjelajah Jaringan & Sandi</span>'
-              }
+            <!-- Badge yang Diperoleh -->
+            <div class="mt-6 flex flex-wrap justify-center gap-2.5">
+              ${badges.map(b => `
+                <div class="px-3 py-2 rounded-2xl border ${b.unlocked ? 'bg-amber-50 border-amber-400 text-slate-800' : 'bg-slate-50 border-slate-200 text-slate-400 opacity-50'} text-xs font-bold flex items-center gap-1.5">
+                  <span class="text-lg">${b.icon}</span>
+                  <span>${b.name}</span>
+                </div>
+              `).join('')}
             </div>
 
-            <!-- Tanda Tangan -->
-            <div class="mt-8 pt-4 grid grid-cols-2 gap-6 max-w-xl mx-auto text-xs sm:text-sm text-slate-600">
-              <div>
-                <p>Diterbitkan pada: <strong>${today}</strong></p>
-                <div class="h-12 flex items-center justify-center text-2xl">🤖</div>
-                <p class="font-bold text-slate-800 border-t border-slate-300 pt-1">Pemandu Robot NETO</p>
-              </div>
-              <div>
-                <p>Mengetahui,</p>
-                <div class="h-12 flex items-center justify-center text-xl">✍️</div>
-                <p class="font-bold text-slate-800 border-t border-slate-300 pt-1">Guru Informatika Kelas VI</p>
-              </div>
+            <div class="mt-8 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+              <div>Diterbitkan pada: <strong>${todayStr}</strong></div>
+              <div class="font-bold text-blue-700">🤖 Pemandu Digital: Robot NETO • Guru Informatika Kelas VI</div>
             </div>
           </div>
 
           <!-- Tombol Aksi Akhir -->
-          <div class="mt-6 flex flex-wrap items-center justify-center gap-4 no-print">
-            <button onclick="window.print()"
-              class="btn-game px-7 py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 font-display font-bold text-lg flex items-center gap-2">
+          <div class="flex flex-wrap items-center justify-center gap-3 pt-2 no-print">
+            <button onclick="window.print()" class="btn-game px-7 py-4 rounded-2xl bg-emerald-600 text-white font-display font-bold text-base flex items-center gap-2">
               <span>🖨️</span> CETAK SERTIFIKAT
             </button>
-            <button onclick="openModal('dashboard-modal')"
-              class="btn-game px-6 py-4 rounded-2xl bg-purple-600 text-white font-display font-bold text-base flex items-center gap-2">
+            <button onclick="openModal('dashboard-modal')" class="btn-game px-6 py-4 rounded-2xl bg-blue-600 text-white font-display font-bold text-base flex items-center gap-2">
               <span>📊</span> LIHAT HASIL BELAJAR
             </button>
-            <button onclick="resetAllProgress()"
-              class="btn-game px-6 py-4 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-display font-bold text-base flex items-center gap-2">
+            <button onclick="resetAllProgress()" class="btn-game px-6 py-4 rounded-2xl bg-slate-200 hover:bg-rose-100 text-slate-800 hover:text-rose-700 font-display font-bold text-base flex items-center gap-2">
               <span>🔄</span> ULANGI PETUALANGAN
             </button>
           </div>
@@ -3594,21 +3491,20 @@
       `;
     }
 
-    function updateCertIdentityLive(nameVal, classVal) {
-      if (nameVal !== null) {
-        updateStudentName(nameVal);
-        const dispName = document.getElementById('cert-display-name');
-        if (dispName) dispName.textContent = nameVal.trim() || 'DETEKTIF DIGITAL HEBAT';
-      }
-      if (classVal !== null) {
-        updateStudentClass(classVal);
-        const dispClass = document.getElementById('cert-display-class');
-        if (dispClass) dispClass.textContent = classVal.trim() ? `Kelas: ${classVal.trim()}` : 'Kelas VI SD/MI';
-      }
+    function updateCertNameLive(val) {
+      updateStudentName(val);
+      const disp = document.getElementById('cert-display-name');
+      if (disp) disp.textContent = val.trim() || 'DETEKTIF DIGITAL HEBAT';
+    }
+
+    function updateCertClassLive(val) {
+      updateStudentClass(val);
+      const disp = document.getElementById('cert-display-class');
+      if (disp) disp.textContent = val.trim() ? `Kelas: ${val.trim()}` : 'Siswa Kelas VI SD/MI';
     }
 
     // =========================================================================
-    // 13. MODAL DASHBOARD PROGRES & BADGE
+    // 13. RENDER MODAL DASHBOARD PROGRES & BADGE
     // =========================================================================
     function renderDashboardModal() {
       const container = document.getElementById('dashboard-content');
@@ -3617,68 +3513,57 @@
       const pct = getOverallProgress();
 
       container.innerHTML = `
-        <div class="mb-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
-          <span class="text-sm font-bold text-slate-700">🕵️ Detektif Aktif: <strong class="text-blue-700">${state.studentName || '-'}</strong></span>
-          <span class="text-sm font-bold text-slate-700">🏫 Kelas: <strong class="text-purple-700">${state.studentClass || '-'}</strong></span>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-          <div class="p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-center">
-            <span class="text-xs font-bold text-blue-700">TOTAL POIN</span>
-            <p class="text-2xl font-display font-extrabold text-blue-900">⚡ ${state.points}</p>
+        <div class="grid grid-cols-3 gap-3 mb-5 text-center">
+          <div class="p-3.5 rounded-2xl bg-blue-50 border border-blue-200">
+            <p class="text-xs font-bold text-blue-600">Total Poin</p>
+            <p class="text-2xl font-display font-extrabold text-blue-800">⚡ ${state.points}</p>
           </div>
-          <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-center">
-            <span class="text-xs font-bold text-amber-700">BINTANG</span>
+          <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200">
+            <p class="text-xs font-bold text-amber-600">Total Bintang</p>
             <p class="text-2xl font-display font-extrabold text-amber-600">⭐ ${state.stars}</p>
           </div>
-          <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
-            <span class="text-xs font-bold text-emerald-700">NILAI KUIS</span>
-            <p class="text-2xl font-display font-extrabold text-emerald-700">📝 ${state.quiz.score}</p>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-purple-50 border border-purple-200 text-center">
-            <span class="text-xs font-bold text-purple-700">PROGRES</span>
+          <div class="p-3.5 rounded-2xl bg-purple-50 border border-purple-200">
+            <p class="text-xs font-bold text-purple-600">Penyelesaian</p>
             <p class="text-2xl font-display font-extrabold text-purple-800">${pct}%</p>
           </div>
         </div>
 
-        <h4 class="font-extrabold text-slate-800 mb-3">🎖️ Koleksi 5 Badge Detektif Digital:</h4>
+        <h4 class="font-extrabold text-slate-800 mb-3">🏅 Koleksi 5 Badge Detektif Digital:</h4>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           ${badges.map(b => `
             <div class="p-3.5 rounded-2xl border-2 flex items-center gap-3 ${
-              b.unlocked ? 'bg-white border-amber-400 shadow-sm' : 'bg-slate-100 border-slate-200 opacity-60'
+              b.unlocked ? 'bg-white border-amber-400 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-60'
             }">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${b.color} text-white text-2xl flex items-center justify-center shrink-0">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br ${b.unlocked ? b.color : 'from-slate-300 to-slate-400'} text-white flex items-center justify-center text-2xl shrink-0">
                 ${b.unlocked ? b.icon : '🔒'}
               </div>
               <div>
-                <p class="font-display font-bold text-sm text-slate-800">${b.name}</p>
-                <p class="text-xs text-slate-600">${b.desc}</p>
+                <p class="font-extrabold text-xs sm:text-sm text-slate-800">${b.name}</p>
+                <p class="text-[11px] text-slate-500 leading-snug">${b.desc}</p>
               </div>
             </div>
           `).join('')}
         </div>
 
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
-          <label class="inline-flex items-center gap-2 text-sm font-bold text-slate-700 cursor-pointer">
-            <input type="checkbox" ${state.teacherUnlockAll ? 'checked' : ''} onchange="toggleTeacherMode(this.checked); renderDashboardModal();" class="w-4 h-4 accent-purple-600">
-            <span>👩‍🏫 Mode Guru (Buka Semua Kunci)</span>
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
+          <label class="inline-flex items-center gap-2 text-xs font-bold text-blue-700 cursor-pointer">
+            <input type="checkbox" ${state.teacherUnlockAll ? 'checked' : ''} onchange="toggleTeacherMode(this.checked); renderDashboardModal();" class="w-4 h-4 accent-blue-600">
+            <span>Mode Guru: Buka Semua Zona</span>
           </label>
-          <button onclick="resetAllProgress()" class="px-4 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-extrabold">
-            🔄 Reset Semua Progres
+          <button onclick="resetAllProgress()" class="px-4 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-xs">
+            🔄 Reset Seluruh Progres
           </button>
         </div>
       `;
     }
 
     // =========================================================================
-    // 14. RENDER UTAMA APLIKASI
+    // 14. ROUTER UTAMA & INISIALISASI APLIKASI
     // =========================================================================
     function renderApp() {
+      updateHUD();
       const app = document.getElementById('app-container');
       if (!app) return;
-
-      updateHUD();
-      AudioEngine.updateUI();
 
       switch (state.currentView) {
         case 'landing':
@@ -3713,12 +3598,9 @@
       }
     }
 
-    // Inisialisasi saat halaman dimuat
     window.onload = function () {
+      AudioEngine.updateUI();
       renderApp();
-      if (state.currentView === 'quiz' && state.quiz.started && !state.quiz.finished) {
-        startQuizTimer();
-      }
     };
   </script>
 </body>
